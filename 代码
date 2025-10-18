@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>怪人协会 - 官方介绍网站</title>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 基础样式保持不变 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Source Han Sans CN", "思源黑体 CN", sans-serif;
+        }
+        body {
+            background-color: #FFFFFF;
+            color: #000000;
+            line-height: 1.6;
+        }
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E0E0E0;
+            z-index: 100;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-start;
+            padding: 16px 24px;
+        }
+        .nav-item {
+            margin-right: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .nav-item:hover, .nav-item.active {
+            color: #333333;
+        }
+        .content-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            padding: 0 24px;
+        }
+        .page-section {
+            display: none;
+            margin-bottom: 80px;
+        }
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* 首页会标样式（修改图片地址） */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        .association-logo {
+            width: 30%;
+            max-width: 240px;
+            height: auto;
+            margin: 0 auto 20px;
+            opacity: 0;
+            animation: fadeInOut 1.5s ease forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .logo-line {
+            width: 120px;
+            height: 1px;
+            background-color: #000000;
+            margin: 0 auto;
+        }
+        .motto-section {
+            margin-bottom: 60px;
+            text-align: center;
+        }
+        .motto-text {
+            font-size: 18px;
+            font-weight: 300;
+            margin: 0 auto;
+            max-width: 800px;
+            line-height: 1.8;
+        }
+
+        /* 通用页面标题样式 */
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .title-line {
+            width: 180px;
+            height: 1px;
+            background-color: #000000;
+            margin-bottom: 32px;
+        }
+
+        /* 加入我们独立页面样式 */
+        .join-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 40px 20px;
+            border: 1px solid #E0E0E0;
+            border-radius: 4px;
+        }
+        .join-subtitle {
+            font-size: 18px;
+            margin-bottom: 40px;
+            color: #555;
+        }
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+        }
+        .contact-icon {
+            font-size: 24px;
+        }
+
+        /* 成员查询页样式 */
+        .member-container {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .dept-nav {
+            width: 200px;
+            flex-shrink: 0;
+        }
+        .dept-item {
+            font-size: 16px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .dept-item:hover, .dept-item.active {
+            background-color: #F5F5F5;
+        }
+        .member-table {
+            flex: 1;
+            min-width: 300px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .member-table th, .member-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .member-table th {
+            font-weight: 700;
+        }
+        .member-table td {
+            font-weight: 300;
+        }
+        .cross-dept {
+            font-size: 14px;
+            color: #333333;
+            margin-left: 8px;
+        }
+
+        /* 关于协会页样式 */
+        .intro-text {
+            font-size: 16px;
+            font-weight: 300;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+        .dept-function {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .function-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .dept-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+        .function-text h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .function-text p {
+            font-size: 14px;
+            font-weight: 300;
+            color: #333333;
+        }
+
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 48px;
+            height: 48px;
+            border: 1px solid #000000;
+            background-color: #FFFFFF;
+            cursor: pointer;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        .back-to-top:hover {
+            background-color: #F5F5F5;
+        }
+        .back-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* 响应式适配（手机端） */
+        @media (max-width: 768px) {
+            .nav-container {
+                justify-content: space-between;
+                padding: 12px 16px;
+            }
+            .nav-item {
+                margin-right: 0;
+                font-size: 14px;
+            }
+            .content-container {
+                margin-top: 60px;
+                padding: 0 16px;
+            }
+            .association-logo {
+                width: 50%;
+            }
+            .motto-text {
+                font-size: 16px;
+                padding: 0 10px;
+            }
+            .dept-nav {
+                width: 100%;
+                display: flex;
+                overflow-x: auto;
+                margin-bottom: 16px;
+            }
+            .dept-item {
+                flex-shrink: 0;
+                margin-bottom: 0;
+                margin-right: 8px;
+            }
+            .dept-function {
+                grid-template-columns: 1fr;
+            }
+            .join-container {
+                padding: 20px 10px;
+            }
+            .contact-item {
+                font-size: 16px;
+            }
+            .back-to-top {
+                bottom: 24px;
+                right: 24px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <div class="nav-item active" data-target="home-page">协会首页</div>
+            <div class="nav-item" data-target="member-page">成员查询</div>
+            <div class="nav-item" data-target="about-page">关于协会</div>
+            <div class="nav-item" data-target="join-page">加入我们</div>
+        </div>
+    </nav>
+
+    <div class="content-container">
+        <!-- 首页 -->
+        <section id="home-page" class="page-section active">
+            <div class="logo-section">
+                <img src="怪人协会会标.jpg" alt="怪人协会会标" class="association-logo">
+                <div class="logo-text">怪人协会</div>
+                <div class="logo-line"></div>
+            </div>
+
+            <div class="motto-section">
+                <p class="motto-text">聚合异质力量，构建非常规秩序——<br>怪人协会，为突破边界而生</p>
+            </div>
+        </section>
+
+        <!-- 成员查询页 -->
+        <section id="member-page" class="page-section">
+            <h2 class="page-title">怪人协会 - 部门成员总览</h2>
+            <div class="title-line"></div>
+
+            <div class="member-container">
+                <div class="dept-nav">
+                    <div class="dept-item active" data-dept="defense">会防部</div>
+                    <div class="dept-item" data-dept="clearing">清算部</div>
+                    <div class="dept-item" data-dept="coordination">统筹部</div>
+                    <div class="dept-item" data-dept="economic">经济部</div>
+                    <div class="dept-item" data-dept="info-sec">信息安全部</div>
+                </div>
+
+                <table class="member-table">
+                    <thead>
+                        <tr>
+                            <th>部门名称（中文/英文）</th>
+                            <th>职位</th>
+                            <th>成员姓名</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="dept-row defense" data-dept="defense">
+                            <td>会防部<br><small>Association Defense Department</small></td>
+                            <td>部长</td>
+                            <td>王沛霖</td>
+                        </tr>
+                        <tr class="dept-row defense" data-dept="defense">
+                            <td></td>
+                            <td>成员</td>
+                            <td>王楚恩</td>
+                        </tr>
+                        <tr class="dept-row defense" data-dept="defense">
+                            <td></td>
+                            <td>成员</td>
+                            <td>靳海逸 <span class="cross-dept">跨部门任职</span></td>
+                        </tr>
+
+                        <tr class="dept-row clearing" data-dept="clearing" style="display: none;">
+                            <td>清算部<br><small>Clearing Department</small></td>
+                            <td>部长</td>
+                            <td>李瑾睿</td>
+                        </tr>
+                        <tr class="dept-row clearing" data-dept="clearing" style="display: none;">
+                            <td></td>
+                            <td>成员</td>
+                            <td>赵雅晗</td>
+                        </tr>
+                        <tr class="dept-row clearing" data-dept="clearing" style="display: none;">
+                            <td></td>
+                            <td>成员</td>
+                            <td>靳海逸 <span class="cross-dept">跨部门任职</span></td>
+                        </tr>
+
+                        <tr class="dept-row coordination" data-dept="coordination" style="display: none;">
+                            <td>统筹部<br><small>Coordination Department</small></td>
+                            <td>部长</td>
+                            <td>闫家栋</td>
+                        </tr>
+                        <tr class="dept-row coordination" data-dept="coordination" style="display: none;">
+                            <td></td>
+                            <td>成员</td>
+                            <td>肖亚旭、宿容、陈雨琪、刘萱楠</td>
+                        </tr>
+
+                        <tr class="dept-row economic" data-dept="economic" style="display: none;">
+                            <td>经济部<br><small>Economic Department</small></td>
+                            <td>部长</td>
+                            <td>张起华</td>
+                        </tr>
+                        <tr class="dept-row economic" data-dept="economic" style="display: none;">
+                            <td></td>
+                            <td>成员</td>
+                            <td>张泽楷</td>
+                        </tr>
+
+                        <tr class="dept-row info-sec" data-dept="info-sec" style="display: none;">
+                            <td>信息安全部<br><small>Artificial Intelligence Application Division</small></td>
+                            <td>部长</td>
+                            <td>刘汪浩</td>
+                        </tr>
+                        <tr class="dept-row info-sec" data-dept="info-sec" style="display: none;">
+                            <td></td>
+                            <td>成员</td>
+                            <td>吴昊鹏、夏浚宸、丁嘉禾</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 关于协会页 -->
+        <section id="about-page" class="page-section">
+            <h2 class="page-title">关于怪人协会</h2>
+            <div class="title-line"></div>
+
+            <div class="intro-section">
+                <p class="intro-text">
+                    怪人协会是异质力量的聚合体，致力于打破常规边界，通过专业化部门协作（防御、清算、统筹、经济、信息安全），
+                    实现成员价值与协会目标的统一，构建非世俗领域的有序生态。协会以"包容差异、强化协作"为核心，
+                    让每位成员的独特能力都能在合理框架内发挥最大价值，共同应对外部挑战与内部协作需求。
+                </p>
+            </div>
+
+            <div class="dept-function">
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20H30M15 15L20 10L25 15M15 25L20 30L25 25" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>会防部</h3>
+                        <p>负责协会领地防御与安全值守，应对外部突袭，维护核心区域安全。</p>
+                    </div>
+                </div>
+
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20L30 20M15 15L20 10M15 25L20 30M25 15L20 10M25 25L20 30" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>清算部</h3>
+                        <p>处理外部冲突后的收尾工作，清除隐患，同时负责违规行为的初步核查。</p>
+                    </div>
+                </div>
+
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20H30M20 10V30" stroke="#000000" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>统筹部</h3>
+                        <p>协调各部门协作，制定跨部门执行计划，调度人力与资源，确保目标落地。</p>
+                    </div>
+                </div>
+
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 25L20 20L25 25M15 15L20 20L25 15" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>经济部</h3>
+                        <p>管理协会财务与资源储备，负责外部资源获取与交易，保障经济体系稳定。</p>
+                    </div>
+                </div>
+
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20H30M15 15L20 10L25 15M15 25L20 30L25 25M20 10V30" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>信息安全部</h3>
+                        <p>保护协会核心信息不泄露，防御外部信息攻击，同时收集关键外部情报。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 加入我们独立页面 -->
+        <section id="join-page" class="page-section">
+            <h2 class="page-title">加入我们</h2>
+            <div class="title-line"></div>
+
+            <div class="join-container">
+                <p class="join-subtitle">怪人协会，静待您的加入</p>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fab fa-weixin contact-icon"></i>
+                        <span>微信：MaLalongzeGWNZ</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone contact-icon"></i>
+                        <span>电话：11451491780</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <div class="back-to-top" id="backToTop">
+        <svg class="back-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 19V5M5 12L12 5L19 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </div>
+
+    <script>
+        // 页面交互脚本
+        const navItems = document.querySelectorAll('.nav-item');
+        const pageSections = document.querySelectorAll('.page-section');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const targetId = item.getAttribute('data-target');
+                
+                navItems.forEach(nav => {
+                    nav.classList.toggle('active', nav.getAttribute('data-target') === targetId);
+                });
+                
+                pageSections.forEach(section => {
+                    section.classList.toggle('active', section.id === targetId);
+                });
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // 成员查询切换功能
+        const deptItems = document.querySelectorAll('.dept-item');
+        const deptRows = document.querySelectorAll('.dept-row');
+        
+        deptItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const targetDept = item.getAttribute('data-dept');
+                
+                deptItems.forEach(dept => {
+                    dept.classList.toggle('active', dept.getAttribute('data-dept') === targetDept);
+                });
+                
+                deptRows.forEach(row => {
+                    row.style.display = row.getAttribute('data-dept') === targetDept ? 'table-row' : 'none';
+                });
+            });
+        });
+
+        // 成员行hover高亮
+        deptRows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.backgroundColor = '#F5F5F5';
+            });
+            row.addEventListener('mouseleave', () => {
+                row.style.backgroundColor = '';
+            });
+        });
+
+        // 返回顶部按钮功能
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            backToTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+        });
+        
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
+    
