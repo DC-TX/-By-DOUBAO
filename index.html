@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>怪人协会 - 官方介绍网站</title>
-    <!-- 引入Font Awesome图标库（使用稳定CDN） -->
+    <!-- 引入Font Awesome图标库 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@6.4.0/css/all.min.css">
     <style>
         /* 基础样式保持不变 */
@@ -45,6 +45,22 @@
         .nav-item:hover, .nav-item.active {
             color: #333333;
         }
+        .user-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .login-btn, .logout-btn {
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 12px;
+            border: 1px solid #000;
+            transition: background-color 0.3s;
+        }
+        .login-btn:hover, .logout-btn:hover {
+            background-color: #F5F5F5;
+        }
         .content-container {
             max-width: 1200px;
             margin: 80px auto 40px;
@@ -62,7 +78,7 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        /* 首页会标样式（确保图片路径在GitHub中有效） */
+        /* 首页会标样式 */
         .logo-section {
             text-align: center;
             margin-bottom: 80px;
@@ -225,6 +241,189 @@
             color: #333333;
         }
 
+        /* 论坛页面样式 */
+        .forum-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .forum-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .new-thread-btn {
+            padding: 8px 16px;
+            border: 1px solid #000;
+            background-color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .new-thread-btn:hover {
+            background-color: #F5F5F5;
+        }
+        .thread-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .thread-card {
+            padding: 20px;
+            border: 1px solid #E0E0E0;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        .thread-card:hover {
+            background-color: #F9F9F9;
+        }
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .thread-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .thread-meta {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            gap: 16px;
+        }
+        .thread-content {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #333;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* 发帖和帖子详情样式 */
+        .thread-form, .thread-detail {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E0E0E0;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .form-textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        .form-submit {
+            padding: 10px 20px;
+            border: 1px solid #000;
+            background-color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .form-submit:hover {
+            background-color: #F5F5F5;
+        }
+        .thread-detail-content {
+            padding: 24px;
+            border: 1px solid #E0E0E0;
+            margin-bottom: 32px;
+        }
+        .reply-section {
+            margin-top: 40px;
+        }
+        .reply-list {
+            margin-top: 20px;
+            border-top: 1px solid #E0E0E0;
+            padding-top: 20px;
+        }
+        .reply-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #F0F0F0;
+        }
+
+        /* 登录/注册模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-container {
+            background-color: #fff;
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #E0E0E0;
+            position: relative;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .modal-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #E0E0E0;
+            padding-bottom: 10px;
+        }
+        .modal-tab {
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        .modal-tab.active {
+            background-color: #F5F5F5;
+        }
+        .login-form, .register-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .login-message {
+            color: #ff0000;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 8px;
+        }
+
         /* 返回顶部按钮 */
         .back-to-top {
             position: fixed;
@@ -253,13 +452,20 @@
             .nav-container {
                 justify-content: space-between;
                 padding: 12px 16px;
+                flex-wrap: wrap;
             }
             .nav-item {
-                margin-right: 0;
+                margin-right: 16px;
                 font-size: 14px;
+                margin-bottom: 8px;
+            }
+            .user-status {
+                width: 100%;
+                justify-content: flex-end;
+                margin-left: 0;
             }
             .content-container {
-                margin-top: 60px;
+                margin-top: 100px;
                 padding: 0 16px;
             }
             .association-logo {
@@ -295,6 +501,15 @@
                 width: 40px;
                 height: 40px;
             }
+            .thread-header {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .forum-controls {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
         }
     </style>
 </head>
@@ -306,14 +521,66 @@
             <div class="nav-item" data-target="member-page">成员查询</div>
             <div class="nav-item" data-target="about-page">关于协会</div>
             <div class="nav-item" data-target="join-page">加入我们</div>
+            <div class="nav-item" data-target="forum-page">协会论坛</div>
+            <div class="user-status">
+                <span class="username-display">未登录</span>
+                <span class="login-btn" id="loginBtn">登录</span>
+                <span class="login-btn" id="registerBtn">注册</span>
+                <span class="logout-btn" id="logoutBtn" style="display: none;">退出</span>
+            </div>
         </div>
     </nav>
+
+    <!-- 登录/注册模态框 -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-container">
+            <div class="modal-title">会员中心</div>
+            <div class="modal-tabs">
+                <span class="modal-tab active" data-tab="login">登录</span>
+                <span class="modal-tab" data-tab="register">注册</span>
+            </div>
+            <div class="modal-close" id="closeModal">&times;</div>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">用户名</label>
+                    <input type="text" id="username" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">密码</label>
+                    <input type="password" id="password" class="form-input" required>
+                </div>
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">自动登录</label>
+                </div>
+                <button type="submit" class="form-submit">登录</button>
+                <div class="login-message" id="loginMessage"></div>
+            </form>
+            
+            <form class="register-form" id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label" for="regUsername">用户名</label>
+                    <input type="text" id="regUsername" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="regPassword">密码</label>
+                    <input type="password" id="regPassword" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="regConfirm">确认密码</label>
+                    <input type="password" id="regConfirm" class="form-input" required>
+                </div>
+                <button type="submit" class="form-submit">注册</button>
+                <div class="login-message" id="registerMessage"></div>
+            </form>
+        </div>
+    </div>
 
     <div class="content-container">
         <!-- 首页 -->
         <section id="home-page" class="page-section active">
             <div class="logo-section">
-                <!-- 图片路径：确保GitHub仓库中存在该文件（与index.html同目录） -->
                 <img src="怪人协会会标.jpg" alt="怪人协会会标" class="association-logo">
                 <div class="logo-text">怪人协会</div>
                 <div class="logo-line"></div>
@@ -492,11 +759,76 @@
                 <div class="contact-info">
                     <div class="contact-item">
                         <i class="fab fa-weixin contact-icon"></i>
-                        <span>微信：MaLalongzeGWSZ</span> <!-- 已将N改为S -->
+                        <span>微信：MaLalongzeGWSZ</span>
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-phone contact-icon"></i>
                         <span>电话：11451491780</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 论坛页面 -->
+        <section id="forum-page" class="page-section">
+            <h2 class="page-title">协会论坛</h2>
+            <div class="title-line"></div>
+
+            <!-- 论坛列表视图 -->
+            <div class="forum-container" id="forumList">
+                <div class="forum-controls">
+                    <div>共有 <span id="threadCount">0</span> 个主题</div>
+                    <button class="new-thread-btn" id="newThreadBtn">发布新主题</button>
+                </div>
+
+                <div class="thread-list" id="threadListContainer">
+                    <!-- 论坛主题将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 发布新主题表单 -->
+            <div class="thread-form" id="threadForm" style="display: none;">
+                <h3 class="page-title">发布新主题</h3>
+                <form id="newThreadForm">
+                    <div class="form-group">
+                        <label class="form-label" for="threadTitle">标题</label>
+                        <input type="text" id="threadTitle" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="threadContent">内容</label>
+                        <textarea id="threadContent" class="form-textarea" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="form-submit">发布</button>
+                        <button type="button" class="form-submit" id="cancelThreadBtn" style="margin-left: 10px;">取消</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 帖子详情视图 -->
+            <div class="thread-detail" id="threadDetail" style="display: none;">
+                <button type="button" class="form-submit" id="backToForumBtn" style="margin-bottom: 20px;">返回论坛</button>
+                <div class="thread-detail-content">
+                    <div class="thread-header">
+                        <div class="thread-title" id="detailTitle"></div>
+                        <div class="thread-meta">
+                            <span>作者: <span id="detailAuthor"></span></span>
+                            <span>发布时间: <span id="detailTime"></span></span>
+                        </div>
+                    </div>
+                    <div class="thread-content" id="detailContent"></div>
+                </div>
+
+                <!-- 回复区 -->
+                <div class="reply-section">
+                    <h3 class="page-title">回复</h3>
+                    <div class="form-group">
+                        <textarea id="replyContent" class="form-textarea" placeholder="请输入回复内容..."></textarea>
+                    </div>
+                    <button class="form-submit" id="submitReplyBtn">提交回复</button>
+
+                    <div class="reply-list" id="replyListContainer">
+                        <!-- 回复将通过JS动态生成 -->
                     </div>
                 </div>
             </div>
@@ -511,64 +843,507 @@
     </div>
 
     <script>
-        // 页面交互脚本
-        const navItems = document.querySelectorAll('.nav-item');
-        const pageSections = document.querySelectorAll('.page-section');
-        
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const targetId = item.getAttribute('data-target');
+        // 全局变量
+        let currentUser = null;
+        let threads = [];
+        let currentThreadId = null;
+        let users = [];  // 用户数据库（本地模拟）
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化用户状态（检查自动登录）
+            initUserStatus();
+            
+            // 初始化论坛数据
+            initForumData();
+            
+            // 渲染论坛列表
+            renderThreadList();
+            
+            // 导航切换功能
+            initNavigation();
+            
+            // 成员查询切换功能
+            initMemberFilter();
+            
+            // 返回顶部按钮功能
+            initBackToTop();
+            
+            // 论坛功能初始化
+            initForumFunctions();
+            
+            // 登录功能初始化
+            initLoginFunctions();
+        });
+
+        // 初始化用户状态
+        function initUserStatus() {
+            // 初始化用户数据库（从localStorage加载）
+            const savedUsers = localStorage.getItem('guairen_users');
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+            } else {
+                users = []; // 初始为空
+                localStorage.setItem('guairen_users', JSON.stringify(users));
+            }
+
+            // 检查localStorage中是否有保存的用户信息
+            const savedUser = localStorage.getItem('guairen_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateUserDisplay();
+            }
+        }
+
+        // 更新用户显示状态
+        function updateUserDisplay() {
+            const usernameDisplay = document.querySelector('.username-display');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            if (currentUser) {
+                usernameDisplay.textContent = `欢迎，${currentUser.username}`;
+                loginBtn.style.display = 'none';
+                registerBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+            } else {
+                usernameDisplay.textContent = '未登录';
+                loginBtn.style.display = 'inline-block';
+                registerBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
+        // 初始化论坛数据
+        function initForumData() {
+            // 从localStorage加载数据，如果没有则初始化空数据
+            const savedThreads = localStorage.getItem('guairen_threads');
+            if (savedThreads) {
+                threads = JSON.parse(savedThreads);
+            } else {
+                // 初始为空（清除原有示例文章）
+                threads = [];
+                saveForumData();
+            }
+        }
+
+        // 保存论坛数据到localStorage
+        function saveForumData() {
+            localStorage.setItem('guairen_threads', JSON.stringify(threads));
+        }
+
+        // 渲染论坛列表
+        function renderThreadList() {
+            const threadListContainer = document.getElementById('threadListContainer');
+            const threadCount = document.getElementById('threadCount');
+            
+            threadListContainer.innerHTML = '';
+            threadCount.textContent = threads.length;
+            
+            // 空内容提示
+            if (threads.length === 0) {
+                threadListContainer.innerHTML = '<div style="text-align: center; color: #999; padding: 40px 0;">这里目前还什么都没有</div>';
+                return;
+            }
+            
+            threads.forEach(thread => {
+                const threadCard = document.createElement('div');
+                threadCard.className = 'thread-card';
+                threadCard.innerHTML = `
+                    <div class="thread-header">
+                        <div class="thread-title">${thread.title}</div>
+                        <div class="thread-meta">
+                            <span>作者: ${thread.author}</span>
+                            <span>发布时间: ${thread.createdAt}</span>
+                            <span>回复: ${thread.replies.length}</span>
+                        </div>
+                    </div>
+                    <div class="thread-content">${thread.content}</div>
+                `;
                 
-                navItems.forEach(nav => {
-                    nav.classList.toggle('active', nav.getAttribute('data-target') === targetId);
+                threadCard.addEventListener('click', () => {
+                    viewThreadDetail(thread.id);
                 });
                 
-                pageSections.forEach(section => {
-                    section.classList.toggle('active', section.id === targetId);
+                threadListContainer.appendChild(threadCard);
+            });
+        }
+
+        // 查看帖子详情
+        function viewThreadDetail(threadId) {
+            const thread = threads.find(t => t.id === threadId);
+            if (!thread) return;
+            
+            currentThreadId = threadId;
+            
+            // 更新详情页内容
+            document.getElementById('detailTitle').textContent = thread.title;
+            document.getElementById('detailAuthor').textContent = thread.author;
+            document.getElementById('detailTime').textContent = thread.createdAt;
+            document.getElementById('detailContent').textContent = thread.content;
+            
+            // 渲染回复列表
+            renderReplies(thread.replies);
+            
+            // 切换显示
+            document.getElementById('forumList').style.display = 'none';
+            document.getElementById('threadForm').style.display = 'none';
+            document.getElementById('threadDetail').style.display = 'block';
+        }
+
+        // 渲染回复列表
+        function renderReplies(replies) {
+            const replyListContainer = document.getElementById('replyListContainer');
+            replyListContainer.innerHTML = '';
+            
+            if (replies.length === 0) {
+                replyListContainer.innerHTML = '<div class="reply-item">暂无回复，快来发表你的看法吧！</div>';
+                return;
+            }
+            
+            replies.forEach(reply => {
+                const replyItem = document.createElement('div');
+                replyItem.className = 'reply-item';
+                replyItem.innerHTML = `
+                    <div class="thread-meta">
+                        <span>${reply.author}</span>
+                        <span>${reply.createdAt}</span>
+                    </div>
+                    <div class="thread-content" style="margin-top: 8px;">${reply.content}</div>
+                `;
+                replyListContainer.appendChild(replyItem);
+            });
+        }
+
+        // 初始化导航功能
+        function initNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const pageSections = document.querySelectorAll('.page-section');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetId = item.getAttribute('data-target');
+                    
+                    // 切换导航激活状态
+                    navItems.forEach(nav => {
+                        nav.classList.toggle('active', nav.getAttribute('data-target') === targetId);
+                    });
+                    
+                    // 切换页面显示
+                    pageSections.forEach(section => {
+                        section.classList.toggle('active', section.id === targetId);
+                    });
+                    
+                    // 如果切换到论坛，确保显示列表视图
+                    if (targetId === 'forum-page') {
+                        document.getElementById('forumList').style.display = 'flex';
+                        document.getElementById('threadForm').style.display = 'none';
+                        document.getElementById('threadDetail').style.display = 'none';
+                    }
+                    
+                    // 页面滚动到顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
-                
+            });
+        }
+
+        // 初始化成员查询筛选
+        function initMemberFilter() {
+            const deptItems = document.querySelectorAll('.dept-item');
+            const deptRows = document.querySelectorAll('.dept-row');
+            
+            deptItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetDept = item.getAttribute('data-dept');
+                    
+                    deptItems.forEach(dept => {
+                        dept.classList.toggle('active', dept.getAttribute('data-dept') === targetDept);
+                    });
+                    
+                    deptRows.forEach(row => {
+                        row.style.display = row.getAttribute('data-dept') === targetDept ? 'table-row' : 'none';
+                    });
+                });
+            });
+            
+            // 成员行hover高亮
+            deptRows.forEach(row => {
+                row.addEventListener('mouseenter', () => {
+                    row.style.backgroundColor = '#F5F5F5';
+                });
+                row.addEventListener('mouseleave', () => {
+                    row.style.backgroundColor = '';
+                });
+            });
+        }
+
+        // 初始化返回顶部按钮
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                backToTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
-        });
+        }
 
-        // 成员查询切换功能
-        const deptItems = document.querySelectorAll('.dept-item');
-        const deptRows = document.querySelectorAll('.dept-row');
-        
-        deptItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const targetDept = item.getAttribute('data-dept');
+        // 初始化论坛功能
+        function initForumFunctions() {
+            // 发布新主题按钮
+            document.getElementById('newThreadBtn').addEventListener('click', () => {
+                // 检查登录状态
+                if (!currentUser) {
+                    showLoginModal();
+                    showLoginMessage('发布内容需要先登录', 'error');
+                    return;
+                }
                 
-                deptItems.forEach(dept => {
-                    dept.classList.toggle('active', dept.getAttribute('data-dept') === targetDept);
-                });
+                // 显示发布表单
+                document.getElementById('forumList').style.display = 'none';
+                document.getElementById('threadForm').style.display = 'block';
+                document.getElementById('threadDetail').style.display = 'none';
                 
-                deptRows.forEach(row => {
-                    row.style.display = row.getAttribute('data-dept') === targetDept ? 'table-row' : 'none';
+                // 重置表单
+                document.getElementById('newThreadForm').reset();
+            });
+            
+            // 取消发布按钮
+            document.getElementById('cancelThreadBtn').addEventListener('click', () => {
+                document.getElementById('forumList').style.display = 'flex';
+                document.getElementById('threadForm').style.display = 'none';
+            });
+            
+            // 提交新主题
+            document.getElementById('newThreadForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('threadTitle').value;
+                const content = document.getElementById('threadContent').value;
+                
+                if (!title || !content) return;
+                
+                // 创建新主题
+                const newThread = {
+                    id: Date.now(), // 使用时间戳作为唯一ID
+                    title: title,
+                    content: content,
+                    author: currentUser.username,
+                    createdAt: new Date().toLocaleString(),
+                    replies: []
+                };
+                
+                // 添加到数组并保存
+                threads.unshift(newThread); // 添加到数组开头
+                saveForumData();
+                
+                // 重新渲染列表并返回
+                renderThreadList();
+                document.getElementById('forumList').style.display = 'flex';
+                document.getElementById('threadForm').style.display = 'none';
+            });
+            
+            // 返回论坛按钮
+            document.getElementById('backToForumBtn').addEventListener('click', () => {
+                document.getElementById('forumList').style.display = 'flex';
+                document.getElementById('threadForm').style.display = 'none';
+                document.getElementById('threadDetail').style.display = 'none';
+                currentThreadId = null;
+            });
+            
+            // 提交回复按钮
+            document.getElementById('submitReplyBtn').addEventListener('click', () => {
+                // 检查登录状态
+                if (!currentUser) {
+                    showLoginModal();
+                    showLoginMessage('回复需要先登录', 'error');
+                    return;
+                }
+                
+                const replyContent = document.getElementById('replyContent').value;
+                if (!replyContent) return;
+                
+                // 找到当前帖子并添加回复
+                const threadIndex = threads.findIndex(t => t.id === currentThreadId);
+                if (threadIndex !== -1) {
+                    threads[threadIndex].replies.push({
+                        author: currentUser.username,
+                        content: replyContent,
+                        createdAt: new Date().toLocaleString()
+                    });
+                    
+                    // 保存并重新渲染
+                    saveForumData();
+                    renderReplies(threads[threadIndex].replies);
+                    
+                    // 清空回复框
+                    document.getElementById('replyContent').value = '';
+                }
+            });
+        }
+
+        // 初始化登录功能
+        function initLoginFunctions() {
+            const loginModal = document.getElementById('loginModal');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const closeModal = document.getElementById('closeModal');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            
+            // 显示登录模态框（登录按钮）
+            loginBtn.addEventListener('click', () => {
+                showLoginModal();
+                document.querySelector('.modal-tab[data-tab="login"]').click();
+            });
+            
+            // 显示注册模态框（注册按钮）
+            registerBtn.addEventListener('click', () => {
+                showLoginModal();
+                document.querySelector('.modal-tab[data-tab="register"]').click();
+            });
+            
+            // 关闭登录模态框
+            closeModal.addEventListener('click', hideLoginModal);
+            
+            // 点击模态框外部关闭
+            loginModal.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                    hideLoginModal();
+                }
+            });
+            
+            // 模态框标签切换（登录/注册）
+            document.querySelectorAll('.modal-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabType = tab.getAttribute('data-tab');
+                    
+                    // 更新标签样式
+                    document.querySelectorAll('.modal-tab').forEach(t => {
+                        t.classList.toggle('active', t.getAttribute('data-tab') === tabType);
+                        t.style.backgroundColor = t.classList.contains('active') ? '#F5F5F5' : '';
+                    });
+                    
+                    // 切换表单显示
+                    loginForm.style.display = tabType === 'login' ? 'flex' : 'none';
+                    registerForm.style.display = tabType === 'register' ? 'flex' : 'none';
+                    // 清空消息
+                    document.getElementById('loginMessage').textContent = '';
+                    document.getElementById('registerMessage').textContent = '';
                 });
             });
-        });
-
-        // 成员行hover高亮
-        deptRows.forEach(row => {
-            row.addEventListener('mouseenter', () => {
-                row.style.backgroundColor = '#F5F5F5';
+            
+            // 处理登录表单提交（对接用户数据库）
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const rememberMe = document.getElementById('rememberMe').checked;
+                
+                // 从用户数据库验证
+                const user = users.find(u => u.username === username && u.password === password);
+                if (user) {
+                    // 登录成功
+                    currentUser = { username: username };
+                    
+                    // 如果勾选了自动登录，则保存到localStorage
+                    if (rememberMe) {
+                        localStorage.setItem('guairen_user', JSON.stringify(currentUser));
+                    } else {
+                        sessionStorage.setItem('guairen_user', JSON.stringify(currentUser));
+                    }
+                    
+                    updateUserDisplay();
+                    hideLoginModal();
+                    loginForm.reset();
+                } else {
+                    showLoginMessage('用户名或密码错误', 'error');
+                }
             });
-            row.addEventListener('mouseleave', () => {
-                row.style.backgroundColor = '';
+            
+            // 处理注册表单提交
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('regUsername').value;
+                const password = document.getElementById('regPassword').value;
+                const confirm = document.getElementById('regConfirm').value;
+                const regMessage = document.getElementById('registerMessage');
+                
+                // 验证
+                if (!username || !password) {
+                    regMessage.textContent = '用户名和密码不能为空';
+                    regMessage.style.color = '#ff0000';
+                    return;
+                }
+                
+                if (password !== confirm) {
+                    regMessage.textContent = '两次密码输入不一致';
+                    regMessage.style.color = '#ff0000';
+                    return;
+                }
+                
+                // 检查用户名是否已存在
+                const userExists = users.some(u => u.username === username);
+                if (userExists) {
+                    regMessage.textContent = '用户名已被注册';
+                    regMessage.style.color = '#ff0000';
+                    return;
+                }
+                
+                // 注册成功，添加到数据库
+                users.push({ username, password });
+                localStorage.setItem('guairen_users', JSON.stringify(users));
+                
+                regMessage.textContent = '注册成功，请登录';
+                regMessage.style.color = '#008000';
+                
+                // 3秒后切换到登录表单
+                setTimeout(() => {
+                    document.querySelector('.modal-tab[data-tab="login"]').click();
+                    document.getElementById('loginForm').reset();
+                    document.getElementById('registerForm').reset();
+                }, 3000);
             });
-        });
+            
+            // 处理退出登录
+            logoutBtn.addEventListener('click', () => {
+                currentUser = null;
+                localStorage.removeItem('guairen_user');
+                sessionStorage.removeItem('guairen_user');
+                updateUserDisplay();
+            });
+        }
 
-        // 返回顶部按钮功能
-        const backToTopBtn = document.getElementById('backToTop');
-        
-        window.addEventListener('scroll', () => {
-            backToTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
-        });
-        
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+        // 显示登录模态框
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        // 隐藏登录模态框
+        function hideLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('loginMessage').textContent = '';
+            document.getElementById('registerMessage').textContent = '';
+        }
+
+        // 显示登录消息
+        function showLoginMessage(text, type = 'error') {
+            const messageElement = document.getElementById('loginMessage');
+            messageElement.textContent = text;
+            messageElement.style.color = type === 'error' ? '#ff0000' : '#008000';
+            
+            // 3秒后自动清除消息
+            setTimeout(() => {
+                messageElement.textContent = '';
+            }, 3000);
+        }
     </script>
 </body>
+    </html>
 </html>
