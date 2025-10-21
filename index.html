@@ -1,15 +1,434 @@
-<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>怪人协会 - 官方介绍网站</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@6.4.0/css/all.min.css">
-    <!-- 引入Firebase SDK（用于云端数据库） -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
     <style>
-        /* 原有样式不变，新增管理员按钮样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Source Han Sans CN", "思源黑体 CN", sans-serif;
+        }
+        body {
+            background-color: #FFFFFF;
+            color: #000000;
+            line-height: 1.6;
+        }
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E0E0E0;
+            z-index: 100;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-start;
+            padding: 16px 24px;
+        }
+        .nav-item {
+            margin-right: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .nav-item:hover, .nav-item.active {
+            color: #333333;
+        }
+        .user-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .login-btn, .logout-btn {
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 12px;
+            border: 1px solid #000;
+            transition: background-color 0.3s;
+        }
+        .login-btn:hover, .logout-btn:hover {
+            background-color: #F5F5F5;
+        }
+        .content-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            padding: 0 24px;
+        }
+        .page-section {
+            display: none;
+            margin-bottom: 80px;
+        }
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        .association-logo {
+            width: 30%;
+            max-width: 240px;
+            height: auto;
+            margin: 0 auto 20px;
+            opacity: 0;
+            animation: fadeInOut 1.5s ease forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .logo-line {
+            width: 120px;
+            height: 1px;
+            background-color: #000000;
+            margin: 0 auto;
+        }
+        .motto-section {
+            margin-bottom: 60px;
+            text-align: center;
+        }
+        .motto-text {
+            font-size: 18px;
+            font-weight: 300;
+            margin: 0 auto;
+            max-width: 800px;
+            line-height: 1.8;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .title-line {
+            width: 180px;
+            height: 1px;
+            background-color: #000000;
+            margin-bottom: 32px;
+        }
+        .join-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 40px 20px;
+            border: 1px solid #E0E0E0;
+            border-radius: 4px;
+        }
+        .join-subtitle {
+            font-size: 18px;
+            margin-bottom: 40px;
+            color: #555;
+        }
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+        }
+        .contact-icon {
+            font-size: 24px;
+        }
+        .member-container {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .dept-nav {
+            width: 200px;
+            flex-shrink: 0;
+        }
+        .dept-item {
+            font-size: 16px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .dept-item:hover, .dept-item.active {
+            background-color: #F5F5F5;
+        }
+        .member-table {
+            flex: 1;
+            min-width: 300px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .member-table th, .member-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .member-table th {
+            font-weight: 700;
+        }
+        .member-table td {
+            font-weight: 300;
+        }
+        .cross-dept {
+            font-size: 14px;
+            color: #333333;
+            margin-left: 8px;
+        }
+        .intro-text {
+            font-size: 16px;
+            font-weight: 300;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+        .dept-function {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .function-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .dept-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+        .function-text h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .function-text p {
+            font-size: 14px;
+            font-weight: 300;
+            color: #333333;
+        }
+        .forum-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .forum-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .new-thread-btn {
+            padding: 8px 16px;
+            border: 1px solid #000;
+            background-color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .new-thread-btn:hover {
+            background-color: #F5F5F5;
+        }
+        .thread-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .thread-card {
+            padding: 20px;
+            border: 1px solid #E0E0E0;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        .thread-card:hover {
+            background-color: #F9F9F9;
+        }
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .thread-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .thread-meta {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            gap: 16px;
+        }
+        .thread-content {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #333;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .thread-form, .thread-detail {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E0E0E0;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .form-textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        .form-submit {
+            padding: 10px 20px;
+            border: 1px solid #000;
+            background-color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .form-submit:hover {
+            background-color: #F5F5F5;
+        }
+        .thread-detail-content {
+            padding: 24px;
+            border: 1px solid #E0E0E0;
+            margin-bottom: 32px;
+        }
+        .reply-section {
+            margin-top: 40px;
+        }
+        .reply-list {
+            margin-top: 20px;
+            border-top: 1px solid #E0E0E0;
+            padding-top: 20px;
+        }
+        .reply-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-container {
+            background-color: #fff;
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #E0E0E0;
+            position: relative;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .modal-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #E0E0E0;
+            padding-bottom: 10px;
+        }
+        .modal-tab {
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        .modal-tab.active {
+            background-color: #F5F5F5;
+        }
+        .login-form, .register-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .login-message {
+            color: #ff0000;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 8px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 48px;
+            height: 48px;
+            border: 1px solid #000000;
+            background-color: #FFFFFF;
+            cursor: pointer;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        .back-to-top:hover {
+            background-color: #F5F5F5;
+        }
+        .back-icon {
+            width: 24px;
+            height: 24px;
+        }
         .admin-actions {
             margin-top: 10px;
             display: flex;
@@ -26,10 +445,72 @@
         .delete-btn:hover {
             background-color: #fff5f5;
         }
+        @media (max-width: 768px) {
+            .nav-container {
+                justify-content: space-between;
+                padding: 12px 16px;
+                flex-wrap: wrap;
+            }
+            .nav-item {
+                margin-right: 16px;
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            .user-status {
+                width: 100%;
+                justify-content: flex-end;
+                margin-left: 0;
+            }
+            .content-container {
+                margin-top: 100px;
+                padding: 0 16px;
+            }
+            .association-logo {
+                width: 50%;
+            }
+            .motto-text {
+                font-size: 16px;
+                padding: 0 10px;
+            }
+            .dept-nav {
+                width: 100%;
+                display: flex;
+                overflow-x: auto;
+                margin-bottom: 16px;
+            }
+            .dept-item {
+                flex-shrink: 0;
+                margin-bottom: 0;
+                margin-right: 8px;
+            }
+            .dept-function {
+                grid-template-columns: 1fr;
+            }
+            .join-container {
+                padding: 20px 10px;
+            }
+            .contact-item {
+                font-size: 16px;
+            }
+            .back-to-top {
+                bottom: 24px;
+                right: 24px;
+                width: 40px;
+                height: 40px;
+            }
+            .thread-header {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .forum-controls {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- 导航栏（不变） -->
     <nav class="nav-bar">
         <div class="nav-container">
             <div class="nav-item active" data-target="home-page">协会首页</div>
@@ -46,7 +527,6 @@
         </div>
     </nav>
 
-    <!-- 登录/注册模态框（不变） -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-container">
             <div class="modal-title">会员中心</div>
@@ -92,9 +572,7 @@
         </div>
     </div>
 
-    <!-- 页面内容（不变） -->
     <div class="content-container">
-        <!-- 首页、成员查询、关于协会、加入我们 部分不变 -->
         <section id="home-page" class="page-section active">
             <div class="logo-section">
                 <img src="怪人协会会标.jpg" alt="怪人协会会标" class="association-logo">
@@ -123,7 +601,15 @@
                         <tr class="dept-row defense" data-dept="defense"><td>会防部<br><small>Association Defense Department</small></td><td>部长</td><td>王沛霖</td></tr>
                         <tr class="dept-row defense" data-dept="defense"><td></td><td>成员</td><td>王楚恩</td></tr>
                         <tr class="dept-row defense" data-dept="defense"><td></td><td>成员</td><td>靳海逸 <span class="cross-dept">跨部门任职</span></td></tr>
-                        <!-- 其他部门成员行不变 -->
+                        <tr class="dept-row clearing" data-dept="clearing" style="display: none;"><td>清算部<br><small>Clearing Department</small></td><td>部长</td><td>李瑾睿</td></tr>
+                        <tr class="dept-row clearing" data-dept="clearing" style="display: none;"><td></td><td>成员</td><td>赵雅晗</td></tr>
+                        <tr class="dept-row clearing" data-dept="clearing" style="display: none;"><td></td><td>成员</td><td>靳海逸 <span class="cross-dept">跨部门任职</span></td></tr>
+                        <tr class="dept-row coordination" data-dept="coordination" style="display: none;"><td>统筹部<br><small>Coordination Department</small></td><td>部长</td><td>闫家栋</td></tr>
+                        <tr class="dept-row coordination" data-dept="coordination" style="display: none;"><td></td><td>成员</td><td>肖亚旭、宿容、陈雨琪、刘萱楠</td></tr>
+                        <tr class="dept-row economic" data-dept="economic" style="display: none;"><td>经济部<br><small>Economic Department</small></td><td>部长</td><td>张起华</td></tr>
+                        <tr class="dept-row economic" data-dept="economic" style="display: none;"><td></td><td>成员</td><td>张泽楷</td></tr>
+                        <tr class="dept-row info-sec" data-dept="info-sec" style="display: none;"><td>信息安全部<br><small>Artificial Intelligence Application Division</small></td><td>部长</td><td>刘汪浩</td></tr>
+                        <tr class="dept-row info-sec" data-dept="info-sec" style="display: none;"><td></td><td>成员</td><td>吴昊鹏、夏浚宸、丁嘉禾</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -133,10 +619,54 @@
             <h2 class="page-title">关于协会</h2>
             <div class="title-line"></div>
             <div class="intro-section">
-                <p class="intro-text">怪人协会是异质力量的聚合体，致力于打破常规边界...</p>
+                <p class="intro-text">怪人协会是异质力量的聚合体，致力于打破常规边界，通过专业化部门协作（防御、清算、统筹、经济、信息安全），实现成员价值与协会目标的统一，构建非世俗领域的有序生态。协会以"包容差异、强化协作"为核心，让每位成员的独特能力都能在合理框架内发挥最大价值，共同应对外部挑战与内部协作需求。</p>
             </div>
             <div class="dept-function">
-                <!-- 部门功能卡片不变 -->
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20H30M15 15L20 10L25 15M15 25L20 30L25 25" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>会防部</h3>
+                        <p>负责协会领地防御与安全值守，应对外部突袭，维护核心区域安全。</p>
+                    </div>
+                </div>
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20L30 20M15 15L20 10M15 25L20 30M25 15L20 10M25 25L20 30" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>清算部</h3>
+                        <p>处理外部冲突后的收尾工作，清除隐患，同时负责违规行为的初步核查。</p>
+                    </div>
+                </div>
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20H30M20 10V30" stroke="#000000" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>统筹部</h3>
+                        <p>协调各部门协作，制定跨部门执行计划，调度人力与资源，确保目标落地。</p>
+                    </div>
+                </div>
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 25L20 20L25 25M15 15L20 20L25 15" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>经济部</h3>
+                        <p>管理协会财务与资源储备，负责外部资源获取与交易，保障经济体系稳定。</p>
+                    </div>
+                </div>
+                <div class="function-card">
+                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20H30M15 15L20 10L25 15M15 25L20 30L25 25M20 10V30" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="function-text">
+                        <h3>信息安全部</h3>
+                        <p>保护协会核心信息不泄露，防御外部信息攻击，同时收集关键外部情报。</p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -152,21 +682,17 @@
             </div>
         </section>
 
-        <!-- 论坛页面（新增管理员按钮） -->
         <section id="forum-page" class="page-section">
             <h2 class="page-title">协会论坛</h2>
             <div class="title-line"></div>
-
             <div class="forum-container" id="forumList">
                 <div class="forum-controls">
                     <div>共有 <span id="threadCount">0</span> 个主题</div>
                     <button class="new-thread-btn" id="newThreadBtn">发布新主题</button>
                 </div>
                 <div class="thread-list" id="threadListContainer">
-                    <!-- 论坛主题动态生成 -->
                 </div>
             </div>
-
             <div class="thread-form" id="threadForm" style="display: none;">
                 <h3 class="page-title">发布新主题</h3>
                 <form id="newThreadForm">
@@ -184,7 +710,6 @@
                     </div>
                 </form>
             </div>
-
             <div class="thread-detail" id="threadDetail" style="display: none;">
                 <button type="button" class="form-submit" id="backToForumBtn" style="margin-bottom: 20px;">返回论坛</button>
                 <div class="thread-detail-content">
@@ -196,12 +721,10 @@
                         </div>
                     </div>
                     <div class="thread-content" id="detailContent"></div>
-                    <!-- 管理员删除帖子按钮（动态显示） -->
                     <div class="admin-actions" id="threadAdminActions" style="display: none;">
                         <button class="delete-btn" id="deleteThreadBtn">删除帖子</button>
                     </div>
                 </div>
-
                 <div class="reply-section">
                     <h3 class="page-title">回复</h3>
                     <div class="form-group">
@@ -221,7 +744,7 @@
     </div>
 
     <script>
-        // === 1. 配置Firebase（关键：替换为你的Firebase项目信息） ===
+        // 初始化Firebase配置
         const firebaseConfig = {
             apiKey: "AIzaSyAzIUyu2Oj0nGgkc6h3qnS6DQkkxsBxzu8",
             authDomain: "guairenxiehui-e3d59.firebaseapp.com",
@@ -231,20 +754,17 @@
             messagingSenderId: "570598758945",
             appId: "G-9VNTHKZBP0"
         };
-        // 初始化Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database(); // 云端数据库引用
+        const db = firebase.database();
 
-        // === 2. 全局变量 ===
         let currentUser = null;
         let threads = [];
         let currentThreadId = null;
-        const ADMIN_USERNAME = "admin"; // 管理员用户名（改成你的用户名）
+        const ADMIN_USERNAME = "admin";
 
-        // === 3. 页面初始化 ===
         document.addEventListener('DOMContentLoaded', function() {
-            initUserStatus();      // 初始化用户
-            loadDataFromCloud();   // 从云端加载数据（替代本地存储）
+            initUserStatus();
+            loadDataFromCloud();
             initNavigation();
             initMemberFilter();
             initBackToTop();
@@ -252,40 +772,56 @@
             initLoginFunctions();
         });
 
-        // === 4. 云端数据同步 ===
-        // 从云端加载数据
+        function initUserStatus() {
+            const savedUser = localStorage.getItem('guairen_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateUserDisplay();
+            }
+            db.ref('users').on('value', (snapshot) => {
+                window.users = snapshot.val() ? Object.values(snapshot.val()) : [];
+            });
+        }
+
+        function updateUserDisplay() {
+            const usernameDisplay = document.querySelector('.username-display');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            if (currentUser) {
+                usernameDisplay.textContent = `欢迎，${currentUser.username}`;
+                loginBtn.style.display = 'none';
+                registerBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+            } else {
+                usernameDisplay.textContent = '未登录';
+                loginBtn.style.display = 'inline-block';
+                registerBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
         function loadDataFromCloud() {
-            // 监听云端数据变化（实时同步）
             db.ref('threads').on('value', (snapshot) => {
                 const data = snapshot.val();
                 threads = data ? Object.values(data) : [];
                 renderThreadList();
             });
-
-            // 加载用户数据
-            db.ref('users').on('value', (snapshot) => {
-                const usersData = snapshot.val();
-                window.users = usersData ? Object.values(usersData) : [];
-            });
         }
 
-        // 保存帖子到云端
         function saveThreadToCloud(thread) {
             db.ref(`threads/${thread.id}`).set(thread);
         }
 
-        // 删除云端帖子
         function deleteThreadFromCloud(threadId) {
             db.ref(`threads/${threadId}`).remove();
         }
 
-        // 保存用户到云端
         function saveUserToCloud(user) {
-            db.ref(`users/${user.username}`).set(user); // 用用户名作为唯一键
+            db.ref(`users/${user.username}`).set(user);
         }
 
-        // === 5. 论坛渲染与管理 ===
-        // 渲染帖子列表（新增管理员删除按钮）
         function renderThreadList() {
             const threadListContainer = document.getElementById('threadListContainer');
             const threadCount = document.getElementById('threadCount');
@@ -316,16 +852,14 @@
                 `;
                 
                 threadCard.addEventListener('click', (e) => {
-                    // 点击删除按钮时不进入详情
                     if (!e.target.classList.contains('delete-btn')) {
                         viewThreadDetail(thread.id);
                     }
                 });
                 
-                // 管理员删除帖子事件
                 if (currentUser?.username === ADMIN_USERNAME) {
                     threadCard.querySelector('.delete-btn').addEventListener('click', (e) => {
-                        e.stopPropagation(); // 阻止冒泡到卡片
+                        e.stopPropagation();
                         deleteThreadFromCloud(thread.id);
                     });
                 }
@@ -334,33 +868,27 @@
             });
         }
 
-        // 查看帖子详情（显示管理员操作）
         function viewThreadDetail(threadId) {
             const thread = threads.find(t => t.id === threadId);
             if (!thread) return;
             
             currentThreadId = threadId;
             
-            // 填充详情
             document.getElementById('detailTitle').textContent = thread.title;
             document.getElementById('detailAuthor').textContent = thread.author;
             document.getElementById('detailTime').textContent = thread.createdAt;
             document.getElementById('detailContent').textContent = thread.content;
             
-            // 管理员显示删除按钮
             const adminActions = document.getElementById('threadAdminActions');
             adminActions.style.display = currentUser?.username === ADMIN_USERNAME ? 'flex' : 'none';
             
-            // 渲染回复（支持删除回复）
             renderReplies(thread.replies || []);
             
-            // 切换显示
             document.getElementById('forumList').style.display = 'none';
             document.getElementById('threadForm').style.display = 'none';
             document.getElementById('threadDetail').style.display = 'block';
         }
 
-        // 渲染回复（管理员可删除）
         function renderReplies(replies) {
             const replyListContainer = document.getElementById('replyListContainer');
             replyListContainer.innerHTML = '';
@@ -383,14 +911,13 @@
                         `<div class="admin-actions"><button class="delete-btn" data-reply-index="${index}">删除回复</button></div>` : ''}
                 `;
                 
-                // 管理员删除回复
                 if (currentUser?.username === ADMIN_USERNAME) {
                     replyItem.querySelector('.delete-btn').addEventListener('click', () => {
                         const thread = threads.find(t => t.id === currentThreadId);
                         if (thread) {
-                            thread.replies.splice(index, 1); // 删除回复
-                            saveThreadToCloud(thread); // 同步到云端
-                            renderReplies(thread.replies); // 重新渲染
+                            thread.replies.splice(index, 1);
+                            saveThreadToCloud(thread);
+                            renderReplies(thread.replies);
                         }
                     });
                 }
@@ -399,15 +926,92 @@
             });
         }
 
-        // === 6. 论坛功能（发布/回复） ===
+        function initNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const pageSections = document.querySelectorAll('.page-section');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetId = item.getAttribute('data-target');
+                    
+                    navItems.forEach(nav => {
+                        nav.classList.toggle('active', nav.getAttribute('data-target') === targetId);
+                    });
+                    
+                    pageSections.forEach(section => {
+                        section.classList.toggle('active', section.id === targetId);
+                    });
+                    
+                    if (targetId === 'forum-page') {
+                        document.getElementById('forumList').style.display = 'flex';
+                        document.getElementById('threadForm').style.display = 'none';
+                        document.getElementById('threadDetail').style.display = 'none';
+                    }
+                    
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        }
+
+        function initMemberFilter() {
+            const deptItems = document.querySelectorAll('.dept-item');
+            const deptRows = document.querySelectorAll('.dept-row');
+            
+            deptItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetDept = item.getAttribute('data-dept');
+                    
+                    deptItems.forEach(dept => {
+                        dept.classList.toggle('active', dept.getAttribute('data-dept') === targetDept);
+                    });
+                    
+                    deptRows.forEach(row => {
+                        row.style.display = row.getAttribute('data-dept') === targetDept ? 'table-row' : 'none';
+                    });
+                });
+            });
+            
+            deptRows.forEach(row => {
+                row.addEventListener('mouseenter', () => {
+                    row.style.backgroundColor = '#F5F5F5';
+                });
+                row.addEventListener('mouseleave', () => {
+                    row.style.backgroundColor = '';
+                });
+            });
+        }
+
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                backToTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
         function initForumFunctions() {
-            // 发布新主题
+            document.getElementById('newThreadBtn').addEventListener('click', () => {
+                if (!currentUser) { showLoginModal(); return; }
+                document.getElementById('forumList').style.display = 'none';
+                document.getElementById('threadForm').style.display = 'block';
+                document.getElementById('newThreadForm').reset();
+            });
+            
+            document.getElementById('cancelThreadBtn').addEventListener('click', () => {
+                document.getElementById('forumList').style.display = 'flex';
+                document.getElementById('threadForm').style.display = 'none';
+            });
+            
             document.getElementById('newThreadForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 if (!currentUser) return;
                 
                 const newThread = {
-                    id: Date.now().toString(), // 用时间戳做ID
+                    id: Date.now().toString(),
                     title: document.getElementById('threadTitle').value,
                     content: document.getElementById('threadContent').value,
                     author: currentUser.username,
@@ -415,15 +1019,19 @@
                     replies: []
                 };
                 
-                saveThreadToCloud(newThread); // 保存到云端
+                saveThreadToCloud(newThread);
                 document.getElementById('forumList').style.display = 'flex';
                 document.getElementById('threadForm').style.display = 'none';
-                this.reset();
             });
-
-            // 提交回复
+            
+            document.getElementById('backToForumBtn').addEventListener('click', () => {
+                document.getElementById('forumList').style.display = 'flex';
+                document.getElementById('threadDetail').style.display = 'none';
+                currentThreadId = null;
+            });
+            
             document.getElementById('submitReplyBtn').addEventListener('click', () => {
-                if (!currentUser) return;
+                if (!currentUser) { showLoginModal(); return; }
                 
                 const replyContent = document.getElementById('replyContent').value;
                 if (!replyContent) return;
@@ -436,43 +1044,18 @@
                         content: replyContent,
                         createdAt: new Date().toLocaleString()
                     });
-                    saveThreadToCloud(thread); // 同步到云端
+                    saveThreadToCloud(thread);
                     document.getElementById('replyContent').value = '';
+                    renderReplies(thread.replies);
                 }
             });
-
-            // 管理员删除帖子（详情页）
+            
             document.getElementById('deleteThreadBtn').addEventListener('click', () => {
                 if (currentUser?.username === ADMIN_USERNAME && currentThreadId) {
                     deleteThreadFromCloud(currentThreadId);
-                    document.getElementById('backToForumBtn').click(); // 返回列表
+                    document.getElementById('backToForumBtn').click();
                 }
             });
-
-            // 其他按钮事件（取消发布、返回论坛等，不变）
-            document.getElementById('newThreadBtn').addEventListener('click', () => {
-                if (!currentUser) { showLoginModal(); return; }
-                document.getElementById('forumList').style.display = 'none';
-                document.getElementById('threadForm').style.display = 'block';
-            });
-            document.getElementById('cancelThreadBtn').addEventListener('click', () => {
-                document.getElementById('forumList').style.display = 'flex';
-                document.getElementById('threadForm').style.display = 'none';
-            });
-            document.getElementById('backToForumBtn').addEventListener('click', () => {
-                document.getElementById('forumList').style.display = 'flex';
-                document.getElementById('threadDetail').style.display = 'none';
-            });
-        }
-
-        // === 7. 登录注册功能（数据同步到云端） ===
-        function initUserStatus() {
-            // 从本地缓存加载当前用户（自动登录）
-            const savedUser = localStorage.getItem('guairen_user');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                updateUserDisplay();
-            }
         }
 
         function initLoginFunctions() {
@@ -480,14 +1063,39 @@
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
 
-            // 登录逻辑
+            document.getElementById('loginBtn').addEventListener('click', () => {
+                showLoginModal();
+                document.querySelector('.modal-tab[data-tab="login"]').click();
+            });
+            
+            document.getElementById('registerBtn').addEventListener('click', () => {
+                showLoginModal();
+                document.querySelector('.modal-tab[data-tab="register"]').click();
+            });
+            
+            document.getElementById('closeModal').addEventListener('click', hideLoginModal);
+            
+            loginModal.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                    hideLoginModal();
+                }
+            });
+            
+            document.querySelectorAll('.modal-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabType = tab.getAttribute('data-tab');
+                    document.querySelectorAll('.modal-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabType));
+                    loginForm.style.display = tabType === 'login' ? 'flex' : 'none';
+                    registerForm.style.display = tabType === 'register' ? 'flex' : 'none';
+                });
+            });
+            
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
                 const rememberMe = document.getElementById('rememberMe').checked;
 
-                // 从云端用户数据验证
                 const user = window.users.find(u => u.username === username && u.password === password);
                 if (user) {
                     currentUser = { username };
@@ -499,8 +1107,7 @@
                     document.getElementById('loginMessage').textContent = '用户名或密码错误';
                 }
             });
-
-            // 注册逻辑（保存到云端）
+            
             registerForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const username = document.getElementById('regUsername').value;
@@ -521,7 +1128,6 @@
                     return;
                 }
 
-                // 保存到云端
                 saveUserToCloud({ username, password });
                 regMessage.textContent = '注册成功，请登录';
                 regMessage.style.color = '#008000';
@@ -530,50 +1136,12 @@
                     registerForm.reset();
                 }, 3000);
             });
-
-            // 其他登录相关事件（不变）
-            document.getElementById('loginBtn').addEventListener('click', () => {
-                showLoginModal();
-                document.querySelector('.modal-tab[data-tab="login"]').click();
-            });
-            document.getElementById('registerBtn').addEventListener('click', () => {
-                showLoginModal();
-                document.querySelector('.modal-tab[data-tab="register"]').click();
-            });
-            document.getElementById('closeModal').addEventListener('click', hideLoginModal);
+            
             document.getElementById('logoutBtn').addEventListener('click', () => {
                 currentUser = null;
                 localStorage.removeItem('guairen_user');
                 updateUserDisplay();
             });
-            document.querySelectorAll('.modal-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabType = tab.getAttribute('data-tab');
-                    document.querySelectorAll('.modal-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabType));
-                    loginForm.style.display = tabType === 'login' ? 'flex' : 'none';
-                    registerForm.style.display = tabType === 'register' ? 'flex' : 'none';
-                });
-            });
-        }
-
-        // === 8. 其他辅助函数（不变） ===
-        function updateUserDisplay() {
-            const usernameDisplay = document.querySelector('.username-display');
-            const loginBtn = document.getElementById('loginBtn');
-            const registerBtn = document.getElementById('registerBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            
-            if (currentUser) {
-                usernameDisplay.textContent = `欢迎，${currentUser.username}`;
-                loginBtn.style.display = 'none';
-                registerBtn.style.display = 'none';
-                logoutBtn.style.display = 'inline-block';
-            } else {
-                usernameDisplay.textContent = '未登录';
-                loginBtn.style.display = 'inline-block';
-                registerBtn.style.display = 'inline-block';
-                logoutBtn.style.display = 'none';
-            }
         }
 
         function showLoginModal() {
@@ -582,12 +1150,9 @@
 
         function hideLoginModal() {
             document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('loginMessage').textContent = '';
+            document.getElementById('registerMessage').textContent = '';
         }
-
-        // 导航、成员筛选、返回顶部等函数不变（省略重复代码）
-        function initNavigation() { /* 原有逻辑 */ }
-        function initMemberFilter() { /* 原有逻辑 */ }
-        function initBackToTop() { /* 原有逻辑 */ }
     </script>
 </body>
 </html>
