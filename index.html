@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>怪人协会 - 官方介绍网站</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@6.4.0/css/all.min.css">
-    <!-- 替换原有的Firebase引入 -->
-<script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-database.js"></script>
+    <!-- Firebase SDK（兼容版本） -->
+    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-storage.js"></script>
     <style>
         * {
             margin: 0;
@@ -446,6 +447,97 @@
         .delete-btn:hover {
             background-color: #fff5f5;
         }
+
+        /* 绘画大赛新增样式 */
+        .painting-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .upload-area {
+            border: 2px dashed #E0E0E0;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #000;
+        }
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #999;
+        }
+        .upload-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .upload-hint {
+            font-size: 14px;
+            color: #666;
+        }
+        #fileInput {
+            display: none;
+        }
+        .preview-img {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 20px auto;
+            display: none;
+        }
+        .submit-painting-btn {
+            padding: 10px 20px;
+            border: 1px solid #000;
+            background-color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 10px;
+            display: none;
+        }
+        .submit-painting-btn:hover {
+            background-color: #F5F5F5;
+        }
+        .status-message {
+            margin: 20px 0;
+            padding: 16px;
+            border-radius: 4px;
+            display: none;
+        }
+        .status-success {
+            background-color: #f0fff4;
+            border: 1px solid #4cd964;
+            color: #2e7d32;
+            display: block;
+        }
+        .status-error {
+            background-color: #fff5f5;
+            border: 1px solid #ff9494;
+            color: #d32f2f;
+            display: block;
+        }
+        .works-list {
+            margin-top: 40px;
+        }
+        .work-item {
+            border: 1px solid #E0E0E0;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .work-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .work-meta {
+            font-size: 14px;
+            color: #666;
+        }
+        .work-img {
+            max-width: 100%;
+            max-height: 400px;
+        }
+
         @media (max-width: 768px) {
             .nav-container {
                 justify-content: space-between;
@@ -519,6 +611,7 @@
             <div class="nav-item" data-target="about-page">关于协会</div>
             <div class="nav-item" data-target="join-page">加入我们</div>
             <div class="nav-item" data-target="forum-page">协会论坛</div>
+            <div class="nav-item" data-target="painting-page">绘画大赛</div> <!-- 绘画大赛导航 -->
             <div class="user-status">
                 <span class="username-display">未登录</span>
                 <span class="login-btn" id="loginBtn">登录</span>
@@ -736,6 +829,38 @@
                 </div>
             </div>
         </section>
+
+        <!-- 绘画大赛页面 -->
+        <section id="painting-page" class="page-section">
+            <h2 class="page-title">绘画大赛 - 作品提交</h2>
+            <div class="title-line"></div>
+            <div class="painting-container">
+                <!-- 上传区域 -->
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" accept="image/jpeg, image/png">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">点击或拖拽图片到此处上传</div>
+                    <div class="upload-hint">支持 JPG、PNG 格式，每个用户限传1张</div>
+                </div>
+
+                <!-- 预览和提交 -->
+                <div id="previewContainer" style="text-align: center;">
+                    <img src="" alt="预览图" class="preview-img" id="previewImg">
+                    <button class="submit-painting-btn" id="submitPaintingBtn">确认提交</button>
+                </div>
+
+                <!-- 状态提示 -->
+                <div class="status-message" id="statusMessage"></div>
+
+                <!-- 作品列表（仅管理员可见） -->
+                <div class="works-list" id="worksList" style="display: none;">
+                    <h3 class="page-title">所有参赛作品</h3>
+                    <div id="worksContainer"></div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <div class="back-to-top" id="backToTop">
@@ -745,7 +870,7 @@
     </div>
 
     <script>
-        // 初始化Firebase配置
+        // Firebase配置（请替换为你的正确配置）
         const firebaseConfig = {
             apiKey: "AIzaSyAzIUyu2Oj0nGgkc6h3qnS6DQkkxsBxzu8",
             authDomain: "guairenxiehui-e3d59.firebaseapp.com",
@@ -753,15 +878,19 @@
             projectId: "guairenxiehui-e3d59",
             storageBucket: "guairenxiehui-e3d59.firebasestorage.app",
             messagingSenderId: "570598758945",
-            appId: "1:570598758945:web:5321c2f2d7dd4a7d9fa160"
+            appId: "1:570598758945:web:5321c2f2d7dd4a7d9fa160" // 替换为正确的appId
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const storage = firebase.storage(); // 初始化存储服务
 
+        // 全局变量
         let currentUser = null;
         let threads = [];
         let currentThreadId = null;
-        const ADMIN_USERNAME = "admin";
+        const ADMIN_USERNAME = "admin"; // 管理员用户名
+        let paintingWorks = []; // 绘画大赛作品
+        let userPainting = null; // 当前用户的作品
 
         document.addEventListener('DOMContentLoaded', function() {
             initUserStatus();
@@ -771,8 +900,10 @@
             initBackToTop();
             initForumFunctions();
             initLoginFunctions();
+            initPaintingContest(); // 初始化绘画大赛
         });
 
+        // 用户状态初始化
         function initUserStatus() {
             const savedUser = localStorage.getItem('guairen_user');
             if (savedUser) {
@@ -803,6 +934,7 @@
             }
         }
 
+        // 云端数据加载
         function loadDataFromCloud() {
             db.ref('threads').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -823,6 +955,7 @@
             db.ref(`users/${user.username}`).set(user);
         }
 
+        // 论坛渲染
         function renderThreadList() {
             const threadListContainer = document.getElementById('threadListContainer');
             const threadCount = document.getElementById('threadCount');
@@ -927,6 +1060,7 @@
             });
         }
 
+        // 导航初始化
         function initNavigation() {
             const navItems = document.querySelectorAll('.nav-item');
             const pageSections = document.querySelectorAll('.page-section');
@@ -947,6 +1081,8 @@
                         document.getElementById('forumList').style.display = 'flex';
                         document.getElementById('threadForm').style.display = 'none';
                         document.getElementById('threadDetail').style.display = 'none';
+                    } else if (targetId === 'painting-page') {
+                        loadPaintingWorks(); // 切换到绘画大赛时加载数据
                     }
                     
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -954,6 +1090,7 @@
             });
         }
 
+        // 成员筛选
         function initMemberFilter() {
             const deptItems = document.querySelectorAll('.dept-item');
             const deptRows = document.querySelectorAll('.dept-row');
@@ -982,6 +1119,7 @@
             });
         }
 
+        // 返回顶部
         function initBackToTop() {
             const backToTopBtn = document.getElementById('backToTop');
             
@@ -994,6 +1132,7 @@
             });
         }
 
+        // 论坛功能
         function initForumFunctions() {
             document.getElementById('newThreadBtn').addEventListener('click', () => {
                 if (!currentUser) { showLoginModal(); return; }
@@ -1059,6 +1198,7 @@
             });
         }
 
+        // 登录功能
         function initLoginFunctions() {
             const loginModal = document.getElementById('loginModal');
             const loginForm = document.getElementById('loginForm');
@@ -1145,6 +1285,175 @@
             });
         }
 
+        // 绘画大赛功能
+        function initPaintingContest() {
+            loadPaintingWorks();
+
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const previewImg = document.getElementById('previewImg');
+            const submitBtn = document.getElementById('submitPaintingBtn');
+
+            // 点击上传
+            uploadArea.addEventListener('click', () => {
+                if (!currentUser) {
+                    showStatusMessage('请先登录再上传作品', 'error');
+                    return;
+                }
+                if (userPainting) {
+                    showStatusMessage('你已上传过作品，不可重复提交', 'error');
+                    return;
+                }
+                fileInput.click();
+            });
+
+            // 拖拽上传
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#000';
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#E0E0E0';
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#E0E0E0';
+                if (!currentUser || userPainting) return;
+                if (e.dataTransfer.files.length) {
+                    handleFileSelect(e.dataTransfer.files[0]);
+                }
+            });
+
+            // 选择文件预览
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+
+            // 提交作品
+            submitBtn.addEventListener('click', uploadPainting);
+        }
+
+        // 处理文件选择
+        function handleFileSelect(file) {
+            if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
+                showStatusMessage('请上传JPG或PNG格式的图片', 'error');
+                return;
+            }
+            const previewImg = document.getElementById('previewImg');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                document.getElementById('submitPaintingBtn').style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 上传作品到云端
+        function uploadPainting() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file || !currentUser) return;
+
+            showStatusMessage('上传中，请稍候...', 'success');
+
+            // 生成唯一文件名
+            const fileName = `paintings/${currentUser.username}_${Date.now()}_${file.name}`;
+            const storageRef = storage.ref(fileName);
+
+            // 上传文件
+            const uploadTask = storageRef.put(file);
+            uploadTask.on('state_changed',
+                null,
+                (error) => {
+                    showStatusMessage('上传失败：' + error.message, 'error');
+                },
+                () => {
+                    // 获取图片URL并保存信息
+                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                        const work = {
+                            id: Date.now().toString(),
+                            author: currentUser.username,
+                            url: downloadURL,
+                            createdAt: new Date().toLocaleString()
+                        };
+                        db.ref(`paintings/${work.id}`).set(work);
+                        showStatusMessage('作品上传成功！', 'success');
+                        document.getElementById('previewImg').style.display = 'none';
+                        document.getElementById('submitPaintingBtn').style.display = 'none';
+                        fileInput.value = '';
+                    });
+                }
+            );
+        }
+
+        // 加载绘画作品
+        function loadPaintingWorks() {
+            db.ref('paintings').on('value', (snapshot) => {
+                const data = snapshot.val();
+                paintingWorks = data ? Object.values(data) : [];
+                userPainting = currentUser ? paintingWorks.find(work => work.author === currentUser.username) : null;
+                renderPaintingPage();
+            });
+        }
+
+        // 渲染绘画大赛页面
+        function renderPaintingPage() {
+            const statusMessage = document.getElementById('statusMessage');
+            const worksList = document.getElementById('worksList');
+            const worksContainer = document.getElementById('worksContainer');
+
+            // 显示用户上传状态
+            if (currentUser && userPainting) {
+                showStatusMessage(`你已在 ${userPainting.createdAt} 上传作品，感谢参与！`, 'success');
+            }
+
+            // 管理员显示所有作品
+            if (currentUser && currentUser.username === ADMIN_USERNAME) {
+                worksList.style.display = 'block';
+                worksContainer.innerHTML = '';
+                if (paintingWorks.length === 0) {
+                    worksContainer.innerHTML = '<div style="text-align: center; padding: 20px;">暂无参赛作品</div>';
+                    return;
+                }
+                // 按时间倒序排列
+                paintingWorks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .forEach(work => {
+                        const workItem = document.createElement('div');
+                        workItem.className = 'work-item';
+                        workItem.innerHTML = `
+                            <div class="work-header">
+                                <div class="thread-title">作品 #${work.id.substring(0, 6)}</div>
+                                <div class="work-meta">
+                                    <span>作者: ${work.author}</span>
+                                    <span>上传时间: ${work.createdAt}</span>
+                                </div>
+                            </div>
+                            <img src="${work.url}" alt="参赛作品" class="work-img">
+                        `;
+                        worksContainer.appendChild(workItem);
+                    });
+            } else {
+                worksList.style.display = 'none';
+            }
+        }
+
+        // 显示状态提示
+        function showStatusMessage(text, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = text;
+            statusEl.className = 'status-message';
+            statusEl.classList.add(`status-${type}`);
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // 模态框控制
         function showLoginModal() {
             document.getElementById('loginModal').classList.add('active');
         }
@@ -1157,5 +1466,3 @@
     </script>
 </body>
 </html>
-
-
