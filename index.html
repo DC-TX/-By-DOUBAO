@@ -286,10 +286,9 @@
     </div>
 
     <!-- 引入Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
     <script>
         // 1. Firebase配置（请替换为你的项目配置！）
         const firebaseConfig = {
@@ -302,6 +301,10 @@
           appId: "1:570598758945:web:5321c2f2d7dd4a7d9fa160",
           measurementId: "G-9VNTHKZBP0"
         };
+        const firebase = window.firebase; 
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const storage = firebase.storage();
         // 初始化Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -666,3 +669,4 @@
     </script>
 </body>
 </html>
+
