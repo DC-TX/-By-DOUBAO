@@ -3,298 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>怪人协会 - 官方介绍网站</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@6.4.0/css/all.min.css">
-    <!-- Firebase SDK（兼容版本） -->
-    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-storage.js"></script>
+    <title>怪人协会 - 成员管理系统</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* 基础样式（保持原有风格） */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Source Han Sans CN", "思源黑体 CN", sans-serif;
+            font-family: Arial, sans-serif;
         }
         body {
-            background-color: #FFFFFF;
-            color: #000000;
+            background: #f9f9f9;
+            color: #333;
             line-height: 1.6;
         }
-        .nav-bar {
+        .container {
+            width: 1200px;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000;
+            text-decoration: none;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 24px;
+        }
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #000;
+            font-weight: 500;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #000;
+            background: #fff;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #000;
+            color: #fff;
+        }
+        .btn-primary {
+            background: #000;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #333;
+        }
+        main {
+            padding: 40px 0;
+        }
+        .page-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .page-title {
+            font-size: 28px;
+            margin-bottom: 24px;
+            font-weight: 700;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 16px;
+        }
+        .title-line {
+            height: 4px;
+            width: 80px;
+            background: #000;
+            margin-bottom: 32px;
+        }
+        /* 登录/注册弹窗 */
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            background-color: #FFFFFF;
-            border-bottom: 1px solid #E0E0E0;
-            z-index: 100;
-        }
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: flex-start;
-            padding: 16px 24px;
-        }
-        .nav-item {
-            margin-right: 40px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        .nav-item:hover, .nav-item.active {
-            color: #333333;
-        }
-        .user-status {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .login-btn, .logout-btn {
-            cursor: pointer;
-            font-size: 14px;
-            padding: 4px 12px;
-            border: 1px solid #000;
-            transition: background-color 0.3s;
-        }
-        .login-btn:hover, .logout-btn:hover {
-            background-color: #F5F5F5;
-        }
-        .content-container {
-            max-width: 1200px;
-            margin: 80px auto 40px;
-            padding: 0 24px;
-        }
-        .page-section {
+            height: 100%;
+            background: rgba(0,0,0,0.5);
             display: none;
-            margin-bottom: 80px;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
         }
-        .page-section.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
+        .modal-content {
+            background: #fff;
+            padding: 32px;
+            width: 400px;
+            max-width: 90%;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .logo-section {
-            text-align: center;
-            margin-bottom: 80px;
-        }
-        .association-logo {
-            width: 30%;
-            max-width: 240px;
-            height: auto;
-            margin: 0 auto 20px;
-            opacity: 0;
-            animation: fadeInOut 1.5s ease forwards;
-        }
-        @keyframes fadeInOut {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 1; }
-        }
-        .logo-text {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        .logo-line {
-            width: 120px;
-            height: 1px;
-            background-color: #000000;
-            margin: 0 auto;
-        }
-        .motto-section {
-            margin-bottom: 60px;
-            text-align: center;
-        }
-        .motto-text {
-            font-size: 18px;
-            font-weight: 300;
-            margin: 0 auto;
-            max-width: 800px;
-            line-height: 1.8;
-        }
-        .page-title {
+        .modal-title {
             font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-        .title-line {
-            width: 180px;
-            height: 1px;
-            background-color: #000000;
-            margin-bottom: 32px;
-        }
-        .join-container {
-            max-width: 600px;
-            margin: 0 auto;
+            margin-bottom: 24px;
             text-align: center;
-            padding: 40px 20px;
-            border: 1px solid #E0E0E0;
-            border-radius: 4px;
-        }
-        .join-subtitle {
-            font-size: 18px;
-            margin-bottom: 40px;
-            color: #555;
-        }
-        .contact-info {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 25px;
-        }
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 18px;
-        }
-        .contact-icon {
-            font-size: 24px;
-        }
-        .member-container {
-            display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-        .dept-nav {
-            width: 200px;
-            flex-shrink: 0;
-        }
-        .dept-item {
-            font-size: 16px;
-            padding: 12px 16px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .dept-item:hover, .dept-item.active {
-            background-color: #F5F5F5;
-        }
-        .member-table {
-            flex: 1;
-            min-width: 300px;
-            border-collapse: collapse;
-            width: 100%;
-        }
-        .member-table th, .member-table td {
-            padding: 16px;
-            text-align: left;
-            border-bottom: 1px solid #E0E0E0;
-        }
-        .member-table th {
             font-weight: 700;
-        }
-        .member-table td {
-            font-weight: 300;
-        }
-        .cross-dept {
-            font-size: 14px;
-            color: #333333;
-            margin-left: 8px;
-        }
-        .intro-text {
-            font-size: 16px;
-            font-weight: 300;
-            margin-bottom: 40px;
-            line-height: 1.8;
-        }
-        .dept-function {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-        .function-card {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            border-bottom: 1px solid #E0E0E0;
-        }
-        .dept-icon {
-            width: 40px;
-            height: 40px;
-            flex-shrink: 0;
-        }
-        .function-text h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .function-text p {
-            font-size: 14px;
-            font-weight: 300;
-            color: #333333;
-        }
-        .forum-container {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-        .forum-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .new-thread-btn {
-            padding: 8px 16px;
-            border: 1px solid #000;
-            background-color: #fff;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s;
-        }
-        .new-thread-btn:hover {
-            background-color: #F5F5F5;
-        }
-        .thread-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .thread-card {
-            padding: 20px;
-            border: 1px solid #E0E0E0;
-            transition: background-color 0.3s;
-            cursor: pointer;
-        }
-        .thread-card:hover {
-            background-color: #F9F9F9;
-        }
-        .thread-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        .thread-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .thread-meta {
-            font-size: 14px;
-            color: #666;
-            display: flex;
-            gap: 16px;
-        }
-        .thread-content {
-            font-size: 16px;
-            margin-bottom: 12px;
-            color: #333;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .thread-form, .thread-detail {
-            max-width: 800px;
-            margin: 0 auto;
         }
         .form-group {
             margin-bottom: 20px;
@@ -303,443 +139,72 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
+            font-size: 14px;
         }
-        .form-input, .form-textarea {
+        .form-input {
             width: 100%;
             padding: 12px;
-            border: 1px solid #E0E0E0;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
             font-size: 16px;
-            font-family: inherit;
+            transition: border 0.3s;
         }
-        .form-textarea {
-            min-height: 200px;
-            resize: vertical;
-        }
-        .form-submit {
-            padding: 10px 20px;
-            border: 1px solid #000;
-            background-color: #fff;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s;
-        }
-        .form-submit:hover {
-            background-color: #F5F5F5;
-        }
-        .thread-detail-content {
-            padding: 24px;
-            border: 1px solid #E0E0E0;
-            margin-bottom: 32px;
-        }
-        .reply-section {
-            margin-top: 40px;
-        }
-        .reply-list {
-            margin-top: 20px;
-            border-top: 1px solid #E0E0E0;
-            padding-top: 20px;
-        }
-        .reply-item {
-            padding: 16px 0;
-            border-bottom: 1px solid #F0F0F0;
-        }
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        .modal-container {
-            background-color: #fff;
-            padding: 32px;
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid #E0E0E0;
-            position: relative;
-        }
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-        .modal-close {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        .modal-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #E0E0E0;
-            padding-bottom: 10px;
-        }
-        .modal-tab {
-            cursor: pointer;
-            padding: 5px 10px;
-        }
-        .modal-tab.active {
-            background-color: #F5F5F5;
-        }
-        .login-form, .register-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-        .login-message {
-            color: #ff0000;
-            font-size: 14px;
-            text-align: center;
-            margin-top: 8px;
-        }
-        .back-to-top {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            width: 48px;
-            height: 48px;
-            border: 1px solid #000000;
-            background-color: #FFFFFF;
-            cursor: pointer;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            transition: background-color 0.3s;
-        }
-        .back-to-top:hover {
-            background-color: #F5F5F5;
-        }
-        .back-icon {
-            width: 24px;
-            height: 24px;
-        }
-        .admin-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 10px;
-        }
-        .delete-btn {
-            padding: 4px 8px;
-            border: 1px solid #ff0000;
-            color: #ff0000;
-            background: transparent;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .delete-btn:hover {
-            background-color: #fff5f5;
-        }
-
-        /* 绘画大赛新增样式 */
-        .painting-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .upload-area {
-            border: 2px dashed #E0E0E0;
-            padding: 40px 20px;
-            text-align: center;
-            margin-bottom: 30px;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-        .upload-area:hover {
+        .form-input:focus {
+            outline: none;
             border-color: #000;
         }
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            color: #999;
-        }
-        .upload-text {
-            font-size: 16px;
-            margin-bottom: 8px;
-        }
-        .upload-hint {
-            font-size: 14px;
-            color: #666;
-        }
-        #fileInput {
-            display: none;
-        }
-        .preview-img {
-            max-width: 100%;
-            max-height: 400px;
-            margin: 20px auto;
-            display: none;
-        }
-        .submit-painting-btn {
-            padding: 10px 20px;
-            border: 1px solid #000;
-            background-color: #fff;
-            cursor: pointer;
-            font-weight: 500;
-            margin-top: 10px;
-            display: none;
-        }
-        .submit-painting-btn:hover {
-            background-color: #F5F5F5;
-        }
-        .status-message {
-            margin: 20px 0;
-            padding: 16px;
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
             border-radius: 4px;
-            display: none;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
         }
-        .status-success {
-            background-color: #f0fff4;
-            border: 1px solid #4cd964;
-            color: #2e7d32;
-            display: block;
-        }
-        .status-error {
-            background-color: #fff5f5;
-            border: 1px solid #ff9494;
-            color: #d32f2f;
-            display: block;
-        }
-        .works-list {
-            margin-top: 40px;
-        }
-        .work-item {
-            border: 1px solid #E0E0E0;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .work-header {
+        .modal-btns {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 16px;
+            gap: 12px;
+            margin-top: 24px;
         }
-        .work-meta {
-            font-size: 14px;
-            color: #666;
-        }
-        .work-img {
-            max-width: 100%;
-            max-height: 400px;
-        }
-
-        @media (max-width: 768px) {
-            .nav-container {
-                justify-content: space-between;
-                padding: 12px 16px;
-                flex-wrap: wrap;
-            }
-            .nav-item {
-                margin-right: 16px;
-                font-size: 14px;
-                margin-bottom: 8px;
-            }
-            .user-status {
-                width: 100%;
-                justify-content: flex-end;
-                margin-left: 0;
-            }
-            .content-container {
-                margin-top: 100px;
-                padding: 0 16px;
-            }
-            .association-logo {
-                width: 50%;
-            }
-            .motto-text {
-                font-size: 16px;
-                padding: 0 10px;
-            }
-            .dept-nav {
-                width: 100%;
-                display: flex;
-                overflow-x: auto;
-                margin-bottom: 16px;
-            }
-            .dept-item {
-                flex-shrink: 0;
-                margin-bottom: 0;
-                margin-right: 8px;
-            }
-            .dept-function {
-                grid-template-columns: 1fr;
-            }
-            .join-container {
-                padding: 20px 10px;
-            }
-            .contact-item {
-                font-size: 16px;
-            }
-            .back-to-top {
-                bottom: 24px;
-                right: 24px;
-                width: 40px;
-                height: 40px;
-            }
-            .thread-header {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .forum-controls {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-        }
-                /* SXP收容所新增样式 */
-        .sxp-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .sxp-item-card {
-            padding: 20px;
-            border: 1px solid #E0E0E0;
-            transition: background-color 0.3s;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .sxp-item-card:hover {
-            background-color: #F9F9F9;
-        }
-        .sxp-item-info {
+        .modal-btns .btn {
             flex: 1;
         }
-        .sxp-item-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .sxp-item-meta {
-            font-size: 14px;
-            color: #666;
-            display: flex;
-            gap: 16px;
-        }
-        .sxp-level {
-            padding: 2px 8px;
-            border-radius: 2px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .sxp-level.安全 {
-            border: 1px solid #4cd964;
-            color: #2e7d32;
-        }
-        .sxp-level.Euclid {
-            border: 1px solid #ffc107;
-            color: #ff8f00;
-        }
-        .sxp-level.危险 {
-            border: 1px solid #ff9494;
-            color: #d32f2f;
-        }
+        /* 响应式调整 */
         @media (max-width: 768px) {
-            .sxp-item-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
+            .nav-menu {
+                display: none;
             }
-            .sxp-item-meta {
-                flex-wrap: wrap;
+            .member-cards-container {
+                grid-template-columns: 1fr !important;
             }
         }
     </style>
 </head>
 <body>
-    <nav class="nav-bar">
-        <div class="nav-container">
-            <div class="nav-item active" data-target="home-page">协会首页</div>
-            <div class="nav-item" data-target="member-page">成员查询</div>
-            <div class="nav-item" data-target="about-page">关于协会</div>
-            <div class="nav-item" data-target="join-page">加入我们</div>
-            <div class="nav-item" data-target="forum-page">协会论坛</div>
-            <div class="nav-item" data-target="painting-page">绘画大赛</div> <!-- 绘画大赛导航 -->
-            <div class="nav-item" data-target="sxp-page">SXP收容所</div>
-            <div class="user-status">
+    <!-- 头部导航 -->
+    <header>
+        <div class="container nav">
+            <a href="#" class="logo">怪人协会</a>
+            <div class="nav-menu">
+                <a href="#" class="nav-link">首页</a>
+                <a href="#member-page" class="nav-link active">成员查询</a>
+                <a href="#" class="nav-link">论坛交流</a>
+                <a href="#" class="nav-link">绘画大赛</a>
+                <a href="#" class="nav-link">SXP收容所</a>
+            </div>
+            <div class="user-info">
                 <span class="username-display">未登录</span>
-                <span class="login-btn" id="loginBtn">登录</span>
-                <span class="login-btn" id="registerBtn">注册</span>
-                <span class="logout-btn" id="logoutBtn" style="display: none;">退出</span>
+                <button id="login-btn" class="btn">登录</button>
+                <button id="register-btn" class="btn btn-primary">注册</button>
+                <button id="logout-btn" class="btn" style="display: none;">退出登录</button>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <div class="modal-overlay" id="loginModal">
-        <div class="modal-container">
-            <div class="modal-title">会员中心</div>
-            <div class="modal-tabs">
-                <span class="modal-tab active" data-tab="login">登录</span>
-                <span class="modal-tab" data-tab="register">注册</span>
-            </div>
-            <div class="modal-close" id="closeModal">&times;</div>
-            
-            <form class="login-form" id="loginForm">
-                <div class="form-group">
-                    <label class="form-label" for="username">用户名</label>
-                    <input type="text" id="username" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="password">密码</label>
-                    <input type="password" id="password" class="form-input" required>
-                </div>
-                <div class="remember-me">
-                    <input type="checkbox" id="rememberMe">
-                    <label for="rememberMe">自动登录</label>
-                </div>
-                <button type="submit" class="form-submit">登录</button>
-                <div class="login-message" id="loginMessage"></div>
-            </form>
-            
-            <form class="register-form" id="registerForm" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label" for="regUsername">用户名</label>
-                    <input type="text" id="regUsername" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="regPassword">密码</label>
-                    <input type="password" id="regPassword" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="regConfirm">确认密码</label>
-                    <input type="password" id="regConfirm" class="form-input" required>
-                </div>
-                <button type="submit" class="form-submit">注册</button>
-                <div class="login-message" id="registerMessage"></div>
-            </form>
-        </div>
-    </div>
-
-    <div class="content-container">
-        
-        <section id="home-page" class="page-section active">
-            <div class="logo-section">
-                <img src="怪人协会会标.jpg" alt="怪人协会会标" class="association-logo">
-                <div class="logo-text">怪人协会</div>
-                <div class="logo-line"></div>
-            </div>
-            <div class="motto-section">
-                <p class="motto-text">聚合异质力量，构建非常规秩序——<br>怪人协会，为突破边界而生</p>
-            </div>
-        </section>
-
+    <!-- 主内容区 -->
+    <main class="container">
+        <!-- 成员查询页面 -->
         <section id="member-page" class="page-section">
             <h2 class="page-title">怪人协会 - 部门成员总览</h2>
             <div class="title-line"></div>
@@ -756,257 +221,77 @@
             <div class="member-cards-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
                 <!-- 成员名片由JS动态渲染 -->
             </div>
-        
+
             <!-- 管理员添加处分的弹窗 -->
-            <div class="punishment-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 9999;">
-                <div class="modal-content" style="background: #fff; padding: 32px; width: 90%; max-width: 400px; border: 1px solid #E0E0E0;">
-                    <h3 class="modal-title" style="font-size: 20px; margin-bottom: 20px; text-align: center;">添加处分记录</h3>
-                    <input type="hidden" id="target-member-id" style="display: none;">
-                    <div class="form-group" style="margin-bottom: 16px;">
-                        <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 500;">处分类型</label>
-                        <select id="punishment-type" class="form-input" style="width: 100%; padding: 12px; border: 1px solid #E0E0E0; font-size: 16px;">
+            <div class="punishment-modal modal">
+                <div class="modal-content">
+                    <h3 class="modal-title">添加处分记录</h3>
+                    <input type="hidden" id="target-member-id">
+                    <div class="form-group">
+                        <label class="form-label">处分类型</label>
+                        <select id="punishment-type" class="form-input">
                             <option value="current">当前处分</option>
                             <option value="history">既往处分</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-bottom: 16px;">
-                        <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 500;">处分内容</label>
-                        <textarea id="punishment-content" class="form-textarea" style="width: 100%; padding: 12px; border: 1px solid #E0E0E0; font-size: 16px; min-height: 100px;" placeholder="请输入处分内容..."></textarea>
+                    <div class="form-group">
+                        <label class="form-label">处分内容</label>
+                        <textarea id="punishment-content" class="form-textarea" placeholder="请输入处分内容..."></textarea>
                     </div>
-                    <div class="modal-btns" style="display: flex; gap: 12px; margin-top: 24px;">
-                        <button id="cancel-punishment" class="form-submit" style="flex: 1; padding: 10px 20px; border: 1px solid #000; background: #fff; cursor: pointer;">取消</button>
-                        <button id="confirm-punishment" class="form-submit" style="flex: 1; padding: 10px 20px; border: 1px solid #000; background: #000; color: #fff; cursor: pointer;">确认添加</button>
+                    <div class="modal-btns">
+                        <button id="cancel-punishment" class="btn">取消</button>
+                        <button id="confirm-punishment" class="btn btn-primary">确认添加</button>
                     </div>
                 </div>
             </div>
         </section>
+    </main>
 
-        <section id="about-page" class="page-section">
-            <h2 class="page-title">关于协会</h2>
-            <div class="title-line"></div>
-            <div class="intro-section">
-                <p class="intro-text">怪人协会是异质力量的聚合体，致力于打破常规边界，通过专业化部门协作（防御、清算、统筹、经济、信息安全），实现成员价值与协会目标的统一，构建非世俗领域的有序生态。协会以"包容差异、强化协作"为核心，让每位成员的独特能力都能在合理框架内发挥最大价值，共同应对外部挑战与内部协作需求。</p>
+    <!-- 登录弹窗 -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">用户登录</h3>
+            <div class="form-group">
+                <label class="form-label">用户名</label>
+                <input type="text" id="login-username" class="form-input" placeholder="请输入用户名">
             </div>
-            <div class="dept-function">
-                <div class="function-card">
-                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 20H30M15 15L20 10L25 15M15 25L20 30L25 25" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="function-text">
-                        <h3>会防部</h3>
-                        <p>负责协会领地防御与安全值守，应对外部突袭，维护核心区域安全。</p>
-                    </div>
-                </div>
-                <div class="function-card">
-                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 20L30 20M15 15L20 10M15 25L20 30M25 15L20 10M25 25L20 30" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="function-text">
-                        <h3>清算部</h3>
-                        <p>处理外部冲突后的收尾工作，清除隐患，同时负责违规行为的初步核查。</p>
-                    </div>
-                </div>
-                <div class="function-card">
-                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 20H30M20 10V30" stroke="#000000" stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                    <div class="function-text">
-                        <h3>统筹部</h3>
-                        <p>协调各部门协作，制定跨部门执行计划，调度人力与资源，确保目标落地。</p>
-                    </div>
-                </div>
-                <div class="function-card">
-                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 25L20 20L25 25M15 15L20 20L25 15" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="function-text">
-                        <h3>经济部</h3>
-                        <p>管理协会财务与资源储备，负责外部资源获取与交易，保障经济体系稳定。</p>
-                    </div>
-                </div>
-                <div class="function-card">
-                    <svg class="dept-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 20H30M15 15L20 10L25 15M15 25L20 30L25 25M20 10V30" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="function-text">
-                        <h3>信息安全部</h3>
-                        <p>保护协会核心信息不泄露，防御外部信息攻击，同时收集关键外部情报。</p>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label class="form-label">密码</label>
+                <input type="password" id="login-password" class="form-input" placeholder="请输入密码">
             </div>
-        </section>
-
-        <section id="join-page" class="page-section">
-            <h2 class="page-title">加入我们</h2>
-            <div class="title-line"></div>
-            <div class="join-container">
-                <p class="join-subtitle">怪人协会，静待您的加入</p>
-                <div class="contact-info">
-                    <div class="contact-item"><i class="fab fa-weixin contact-icon"></i><span>微信：MaLalongzeGWSZ</span></div>
-                    <div class="contact-item"><i class="fas fa-phone contact-icon"></i><span>电话：11451491780</span></div>
-                </div>
+            <div class="modal-btns">
+                <button id="cancel-login" class="btn">取消</button>
+                <button id="submit-login" class="btn btn-primary">登录</button>
             </div>
-        </section>
-
-        <section id="forum-page" class="page-section">
-            <h2 class="page-title">协会论坛</h2>
-            <div class="title-line"></div>
-            <div class="forum-container" id="forumList">
-                <div class="forum-controls">
-                    <div>共有 <span id="threadCount">0</span> 个主题</div>
-                    <button class="new-thread-btn" id="newThreadBtn">发布新主题</button>
-                </div>
-                <div class="thread-list" id="threadListContainer">
-                </div>
-            </div>
-            <div class="thread-form" id="threadForm" style="display: none;">
-                <h3 class="page-title">发布新主题</h3>
-                <form id="newThreadForm">
-                    <div class="form-group">
-                        <label class="form-label" for="threadTitle">标题</label>
-                        <input type="text" id="threadTitle" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="threadContent">内容</label>
-                        <textarea id="threadContent" class="form-textarea" required></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="form-submit">发布</button>
-                        <button type="button" class="form-submit" id="cancelThreadBtn" style="margin-left: 10px;">取消</button>
-                    </div>
-                </form>
-            </div>
-            <div class="thread-detail" id="threadDetail" style="display: none;">
-                <button type="button" class="form-submit" id="backToForumBtn" style="margin-bottom: 20px;">返回论坛</button>
-                <div class="thread-detail-content">
-                    <div class="thread-header">
-                        <div class="thread-title" id="detailTitle"></div>
-                        <div class="thread-meta">
-                            <span>作者: <span id="detailAuthor"></span></span>
-                            <span>发布时间: <span id="detailTime"></span></span>
-                        </div>
-                    </div>
-                    <div class="thread-content" id="detailContent"></div>
-                    <div class="admin-actions" id="threadAdminActions" style="display: none;">
-                        <button class="delete-btn" id="deleteThreadBtn">删除帖子</button>
-                    </div>
-                </div>
-                <div class="reply-section">
-                    <h3 class="page-title">回复</h3>
-                    <div class="form-group">
-                        <textarea id="replyContent" class="form-textarea" placeholder="请输入回复内容..."></textarea>
-                    </div>
-                    <button class="form-submit" id="submitReplyBtn">提交回复</button>
-                    <div class="reply-list" id="replyListContainer"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 绘画大赛页面 -->
-        <section id="painting-page" class="page-section">
-            <h2 class="page-title">绘画大赛 - 作品提交</h2>
-            <div class="title-line"></div>
-            <div class="painting-container">
-                <!-- 上传区域 -->
-                <div class="upload-area" id="uploadArea">
-                    <input type="file" id="fileInput" accept="image/jpeg, image/png">
-                    <div class="upload-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <div class="upload-text">点击或拖拽图片到此处上传</div>
-                    <div class="upload-hint">支持 JPG、PNG 格式，每个用户限传1张</div>
-                </div>
-
-                <!-- 预览和提交 -->
-                <div id="previewContainer" style="text-align: center;">
-                    <img src="" alt="预览图" class="preview-img" id="previewImg">
-                    <button class="submit-painting-btn" id="submitPaintingBtn">确认提交</button>
-                </div>
-
-                <!-- 状态提示 -->
-                <div class="status-message" id="statusMessage"></div>
-
-                <!-- 作品列表（仅管理员可见） -->
-                <div class="works-list" id="worksList" style="display: none;">
-                    <h3 class="page-title">所有参赛作品</h3>
-                    <div id="worksContainer"></div>
-                </div>
-            </div>
-        </section>
-        <!-- SXP收容所页面 -->
-        <section id="sxp-page" class="page-section">
-            <h2 class="page-title">SXP收容所 - 特殊对象管理</h2>
-            <div class="title-line"></div>
-            <div class="intro-section">
-                <p class="intro-text">SXP收容所负责记录、管理协会接触的特殊对象，建立标准化收容档案，确保异质力量可控、可追溯。以下为已备案的收容对象列表（管理员可新增/删除收容项）。</p>
-            </div>
-            <div class="forum-controls" style="margin-bottom: 24px;">
-                <div>已收容 <span id="sxpItemCount">0</span> 个特殊对象</div>
-                <button class="new-thread-btn" id="newSxpItemBtn">新增收容项</button>
-            </div>
-            <!-- 收容列表 -->
-            <div class="sxp-list" id="sxpListContainer">
-                <!-- 列表内容由JS动态渲染 -->
-            </div>
-            <!-- 新增收容项表单 -->
-            <div class="thread-form" id="sxpForm" style="display: none;">
-                <h3 class="page-title">新增收容对象</h3>
-                <form id="newSxpItemForm">
-                    <div class="form-group">
-                        <label class="form-label" for="sxpName">对象名称</label>
-                        <input type="text" id="sxpName" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="sxpCode">收容编号（SXP-XXX）</label>
-                        <input type="text" id="sxpCode" class="form-input" required placeholder="例：SXP-001">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="sxpLevel">收容等级</label>
-                        <select id="sxpLevel" class="form-input" required>
-                            <option value="安全">安全（Safe）</option>
-                            <option value="Euclid">Euclid（需监控）</option>
-                            <option value="危险">危险（Keter）</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="sxpDesc">收容描述</label>
-                        <textarea id="sxpDesc" class="form-textarea" required placeholder="请描述对象特性、收容措施、风险提示等"></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="form-submit">保存收容档案</button>
-                        <button type="button" class="form-submit" id="cancelSxpBtn" style="margin-left: 10px;">取消</button>
-                    </div>
-                </form>
-            </div>
-            <!-- 收容详情 -->
-            <div class="thread-detail" id="sxpDetail" style="display: none;">
-                <button type="button" class="form-submit" id="backToSxpListBtn" style="margin-bottom: 20px;">返回收容列表</button>
-                <div class="thread-detail-content">
-                    <div class="thread-header">
-                        <div class="thread-title" id="sxpDetailTitle"></div>
-                        <div class="thread-meta">
-                            <span>收容编号: <span id="sxpDetailCode"></span></span>
-                            <span>收容等级: <span id="sxpDetailLevel" class="sxp-level"></span></span>
-                            <span>备案时间: <span id="sxpDetailTime"></span></span>
-                        </div>
-                    </div>
-                    <div class="thread-content" id="sxpDetailDesc" style="margin-top: 24px; line-height: 1.8;"></div>
-                    <div class="admin-actions" id="sxpAdminActions" style="display: none;">
-                        <button class="delete-btn" id="deleteSxpItemBtn">删除收容档案</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+        </div>
     </div>
 
-    <div class="back-to-top" id="backToTop">
-        <svg class="back-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 19V5M5 12L12 5L19 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+    <!-- 注册弹窗 -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">用户注册</h3>
+            <div class="form-group">
+                <label class="form-label">用户名</label>
+                <input type="text" id="register-username" class="form-input" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label class="form-label">密码</label>
+                <input type="password" id="register-password" class="form-input" placeholder="请输入密码（至少6位）">
+            </div>
+            <div class="modal-btns">
+                <button id="cancel-register" class="btn">取消</button>
+                <button id="submit-register" class="btn btn-primary">注册</button>
+            </div>
+        </div>
     </div>
+
+    <!-- 引入Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
 
     <script>
-        // Firebase配置（请替换为你的正确配置）
+        // 1. Firebase配置（请替换为你的项目配置！）
         const firebaseConfig = {
           apiKey: "AIzaSyAzIUyu2Oj0nGgkc6h3qnS6DQkkxsBxzu8",
           authDomain: "guairenxiehui-e3d59.firebaseapp.com",
@@ -1017,51 +302,48 @@
           appId: "1:570598758945:web:5321c2f2d7dd4a7d9fa160",
           measurementId: "G-9VNTHKZBP0"
         };
+        // 初始化Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const storage = firebase.storage(); // 初始化存储服务
+        const storage = firebase.storage();
 
-        // 全局变量
+        // 2. 全局变量
         let currentUser = null;
-        let threads = [];
-        let currentThreadId = null;
         const ADMIN_USERNAME = "admin"; // 管理员用户名
-        let paintingWorks = []; // 绘画大赛作品
-        let members = [];
-        let userPainting = null; // 当前用户的作品
+        let members = []; // 成员列表
 
+        // 3. DOM加载完成初始化
         document.addEventListener('DOMContentLoaded', function() {
+            // 初始化基础功能
             initUserStatus();
-            loadDataFromCloud();
-            initNavigation();
-            initMemberFilter();
-            initBackToTop();
-            initForumFunctions();
-            initLoginFunctions();
-            initPaintingContest(); // 初始化绘画大赛
-            initMembersData(); 
+            initLoginRegisterModal();
+            initLogout();
+            // 初始化成员相关功能
+            initMembersData();
             initPunishmentModal();
-            initMemberFilter(); // 👉 移到最后，确保筛选按钮DOM已存在
+            initMemberFilter();
         });
 
-        // 用户状态初始化
+        // 4. 用户状态初始化（本地存储+Firebase同步）
         function initUserStatus() {
             const savedUser = localStorage.getItem('guairen_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 updateUserDisplay();
             }
+            // 监听Firebase用户数据
             db.ref('users').on('value', (snapshot) => {
                 window.users = snapshot.val() ? Object.values(snapshot.val()) : [];
             });
         }
 
+        // 更新用户显示（登录/注册/退出状态）
         function updateUserDisplay() {
             const usernameDisplay = document.querySelector('.username-display');
-            const loginBtn = document.getElementById('loginBtn');
-            const registerBtn = document.getElementById('registerBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+
             if (currentUser) {
                 usernameDisplay.textContent = `欢迎，${currentUser.username}`;
                 loginBtn.style.display = 'none';
@@ -1075,715 +357,104 @@
             }
         }
 
-        // 云端数据加载
-        function loadDataFromCloud() {
-            db.ref('threads').on('value', (snapshot) => {
-                const data = snapshot.val();
-                threads = data ? Object.values(data) : [];
-                renderThreadList();
-            });
-        }
+        // 5. 登录/注册弹窗逻辑
+        function initLoginRegisterModal() {
+            // 登录弹窗
+            const loginModal = document.getElementById('login-modal');
+            const loginBtn = document.getElementById('login-btn');
+            const cancelLogin = document.getElementById('cancel-login');
+            const submitLogin = document.getElementById('submit-login');
 
-        function saveThreadToCloud(thread) {
-            db.ref(`threads/${thread.id}`).set(thread);
-        }
+            loginBtn.addEventListener('click', () => loginModal.style.display = 'flex');
+            cancelLogin.addEventListener('click', () => loginModal.style.display = 'none');
+            loginModal.addEventListener('click', (e) => e.target === loginModal && (loginModal.style.display = 'none'));
 
-        function deleteThreadFromCloud(threadId) {
-            db.ref(`threads/${threadId}`).remove();
-        }
-
-        function saveUserToCloud(user) {
-            db.ref(`users/${user.username}`).set(user);
-        }
-
-        // 论坛渲染
-        function renderThreadList() {
-            const threadListContainer = document.getElementById('threadListContainer');
-            const threadCount = document.getElementById('threadCount');
-            
-            threadListContainer.innerHTML = '';
-            threadCount.textContent = threads.length;
-            
-            if (threads.length === 0) {
-                threadListContainer.innerHTML = '<div style="text-align: center; color: #999; padding: 40px 0;">这里目前还什么都没有</div>';
-                return;
-            }
-            
-            threads.forEach(thread => {
-                const threadCard = document.createElement('div');
-                threadCard.className = 'thread-card';
-                threadCard.innerHTML = `
-                    <div class="thread-header">
-                        <div class="thread-title">${thread.title}</div>
-                        <div class="thread-meta">
-                            <span>作者: ${thread.author}</span>
-                            <span>发布时间: ${thread.createdAt}</span>
-                            <span>回复: ${thread.replies?.length || 0}</span>
-                        </div>
-                    </div>
-                    <div class="thread-content">${thread.content}</div>
-                    ${currentUser?.username === ADMIN_USERNAME ? 
-                        `<div class="admin-actions"><button class="delete-btn" data-thread-id="${thread.id}">删除</button></div>` : ''}
-                `;
-                
-                threadCard.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('delete-btn')) {
-                        viewThreadDetail(thread.id);
-                    }
-                });
-                
-                if (currentUser?.username === ADMIN_USERNAME) {
-                    threadCard.querySelector('.delete-btn').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteThreadFromCloud(thread.id);
-                    });
-                }
-                
-                threadListContainer.appendChild(threadCard);
-            });
-        }
-
-        function viewThreadDetail(threadId) {
-            const thread = threads.find(t => t.id === threadId);
-            if (!thread) return;
-            
-            currentThreadId = threadId;
-            
-            document.getElementById('detailTitle').textContent = thread.title;
-            document.getElementById('detailAuthor').textContent = thread.author;
-            document.getElementById('detailTime').textContent = thread.createdAt;
-            document.getElementById('detailContent').textContent = thread.content;
-            
-            const adminActions = document.getElementById('threadAdminActions');
-            adminActions.style.display = currentUser?.username === ADMIN_USERNAME ? 'flex' : 'none';
-            
-            renderReplies(thread.replies || []);
-            
-            document.getElementById('forumList').style.display = 'none';
-            document.getElementById('threadForm').style.display = 'none';
-            document.getElementById('threadDetail').style.display = 'block';
-        }
-
-        function renderReplies(replies) {
-            const replyListContainer = document.getElementById('replyListContainer');
-            replyListContainer.innerHTML = '';
-            
-            if (replies.length === 0) {
-                replyListContainer.innerHTML = '<div class="reply-item">暂无回复，快来发表你的看法吧！</div>';
-                return;
-            }
-            
-            replies.forEach((reply, index) => {
-                const replyItem = document.createElement('div');
-                replyItem.className = 'reply-item';
-                replyItem.innerHTML = `
-                    <div class="thread-meta">
-                        <span>${reply.author}</span>
-                        <span>${reply.createdAt}</span>
-                    </div>
-                    <div class="thread-content" style="margin-top: 8px;">${reply.content}</div>
-                    ${currentUser?.username === ADMIN_USERNAME ? 
-                        `<div class="admin-actions"><button class="delete-btn" data-reply-index="${index}">删除回复</button></div>` : ''}
-                `;
-                
-                if (currentUser?.username === ADMIN_USERNAME) {
-                    replyItem.querySelector('.delete-btn').addEventListener('click', () => {
-                        const thread = threads.find(t => t.id === currentThreadId);
-                        if (thread) {
-                            thread.replies.splice(index, 1);
-                            saveThreadToCloud(thread);
-                            renderReplies(thread.replies);
-                        }
-                    });
-                }
-                
-                replyListContainer.appendChild(replyItem);
-            });
-        }
-
-        // 导航初始化
-        function initNavigation() {
-            const navItems = document.querySelectorAll('.nav-item');
-            const pageSections = document.querySelectorAll('.page-section');
-            
-            navItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const targetId = item.getAttribute('data-target');
-                    
-                    navItems.forEach(nav => {
-                        nav.classList.toggle('active', nav.getAttribute('data-target') === targetId);
-                    });
-                    
-                    pageSections.forEach(section => {
-                        section.classList.toggle('active', section.id === targetId);
-                    });
-                    
-                    if (targetId === 'forum-page') {
-                        document.getElementById('forumList').style.display = 'flex';
-                        document.getElementById('threadForm').style.display = 'none';
-                        document.getElementById('threadDetail').style.display = 'none';
-                    } else if (targetId === 'painting-page') {
-                        loadPaintingWorks(); // 切换到绘画大赛时加载数据
-                    }
-                    
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            });
-        }
-
-        // 成员筛选
-        function initMemberFilter() {
-            const deptItems = document.querySelectorAll('.dept-item');
-            const deptRows = document.querySelectorAll('.dept-row');
-            
-            deptItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const targetDept = item.getAttribute('data-dept');
-                    
-                    deptItems.forEach(dept => {
-                        dept.classList.toggle('active', dept.getAttribute('data-dept') === targetDept);
-                    });
-                    
-                    deptRows.forEach(row => {
-                        row.style.display = row.getAttribute('data-dept') === targetDept ? 'table-row' : 'none';
-                    });
-                });
-            });
-            
-            deptRows.forEach(row => {
-                row.addEventListener('mouseenter', () => {
-                    row.style.backgroundColor = '#F5F5F5';
-                });
-                row.addEventListener('mouseleave', () => {
-                    row.style.backgroundColor = '';
-                });
-            });
-        }
-
-        // 返回顶部
-        function initBackToTop() {
-            const backToTopBtn = document.getElementById('backToTop');
-            
-            window.addEventListener('scroll', () => {
-                backToTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
-            });
-            
-            backToTopBtn.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-
-        // 论坛功能
-        function initForumFunctions() {
-            document.getElementById('newThreadBtn').addEventListener('click', () => {
-                if (!currentUser) { showLoginModal(); return; }
-                document.getElementById('forumList').style.display = 'none';
-                document.getElementById('threadForm').style.display = 'block';
-                document.getElementById('newThreadForm').reset();
-            });
-            
-            document.getElementById('cancelThreadBtn').addEventListener('click', () => {
-                document.getElementById('forumList').style.display = 'flex';
-                document.getElementById('threadForm').style.display = 'none';
-            });
-            
-            document.getElementById('newThreadForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                if (!currentUser) return;
-                
-                const newThread = {
-                    id: Date.now().toString(),
-                    title: document.getElementById('threadTitle').value,
-                    content: document.getElementById('threadContent').value,
-                    author: currentUser.username,
-                    createdAt: new Date().toLocaleString(),
-                    replies: []
-                };
-                
-                saveThreadToCloud(newThread);
-                document.getElementById('forumList').style.display = 'flex';
-                document.getElementById('threadForm').style.display = 'none';
-            });
-            
-            document.getElementById('backToForumBtn').addEventListener('click', () => {
-                document.getElementById('forumList').style.display = 'flex';
-                document.getElementById('threadDetail').style.display = 'none';
-                currentThreadId = null;
-            });
-            
-            document.getElementById('submitReplyBtn').addEventListener('click', () => {
-                if (!currentUser) { showLoginModal(); return; }
-                
-                const replyContent = document.getElementById('replyContent').value;
-                if (!replyContent) return;
-                
-                const thread = threads.find(t => t.id === currentThreadId);
-                if (thread) {
-                    thread.replies = thread.replies || [];
-                    thread.replies.push({
-                        author: currentUser.username,
-                        content: replyContent,
-                        createdAt: new Date().toLocaleString()
-                    });
-                    saveThreadToCloud(thread);
-                    document.getElementById('replyContent').value = '';
-                    renderReplies(thread.replies);
-                }
-            });
-            
-            document.getElementById('deleteThreadBtn').addEventListener('click', () => {
-                if (currentUser?.username === ADMIN_USERNAME && currentThreadId) {
-                    deleteThreadFromCloud(currentThreadId);
-                    document.getElementById('backToForumBtn').click();
-                }
-            });
-        }
-
-        // 登录功能
-        function initLoginFunctions() {
-            const loginModal = document.getElementById('loginModal');
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-
-            document.getElementById('loginBtn').addEventListener('click', () => {
-                showLoginModal();
-                document.querySelector('.modal-tab[data-tab="login"]').click();
-            });
-            
-            document.getElementById('registerBtn').addEventListener('click', () => {
-                showLoginModal();
-                document.querySelector('.modal-tab[data-tab="register"]').click();
-            });
-            
-            document.getElementById('closeModal').addEventListener('click', hideLoginModal);
-            
-            loginModal.addEventListener('click', (e) => {
-                if (e.target === loginModal) {
-                    hideLoginModal();
-                }
-            });
-            
-            document.querySelectorAll('.modal-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabType = tab.getAttribute('data-tab');
-                    document.querySelectorAll('.modal-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabType));
-                    loginForm.style.display = tabType === 'login' ? 'flex' : 'none';
-                    registerForm.style.display = tabType === 'register' ? 'flex' : 'none';
-                });
-            });
-            
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                const rememberMe = document.getElementById('rememberMe').checked;
-
-                const user = window.users.find(u => u.username === username && u.password === password);
-                if (user) {
-                    currentUser = { username };
-                    if (rememberMe) localStorage.setItem('guairen_user', JSON.stringify(currentUser));
-                    updateUserDisplay();
-                    hideLoginModal();
-                    loginForm.reset();
-                } else {
-                    document.getElementById('loginMessage').textContent = '用户名或密码错误';
-                }
-            });
-            
-            registerForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const username = document.getElementById('regUsername').value;
-                const password = document.getElementById('regPassword').value;
-                const confirm = document.getElementById('regConfirm').value;
-                const regMessage = document.getElementById('registerMessage');
+            // 登录提交
+            submitLogin.addEventListener('click', () => {
+                const username = document.getElementById('login-username').value.trim();
+                const password = document.getElementById('login-password').value.trim();
 
                 if (!username || !password) {
-                    regMessage.textContent = '用户名和密码不能为空';
-                    return;
-                }
-                if (password !== confirm) {
-                    regMessage.textContent = '两次密码输入不一致';
-                    return;
-                }
-                if (window.users.some(u => u.username === username)) {
-                    regMessage.textContent = '用户名已被注册';
+                    alert('请输入用户名和密码');
                     return;
                 }
 
-                saveUserToCloud({ username, password });
-                regMessage.textContent = '注册成功，请登录';
-                regMessage.style.color = '#008000';
-                setTimeout(() => {
-                    document.querySelector('.modal-tab[data-tab="login"]').click();
-                    registerForm.reset();
-                }, 3000);
+                // 从Firebase查询用户
+                const user = window.users?.find(u => u.username === username && u.password === password);
+                if (user) {
+                    currentUser = user;
+                    localStorage.setItem('guairen_user', JSON.stringify(user));
+                    updateUserDisplay();
+                    loginModal.style.display = 'none';
+                    // 刷新成员卡片（显示管理员按钮）
+                    const activeDept = document.querySelector('.dept-filter-btn.active').getAttribute('data-dept');
+                    renderMemberCards(activeDept);
+                } else {
+                    alert('用户名或密码错误');
+                }
             });
-            
-            document.getElementById('logoutBtn').addEventListener('click', () => {
+
+            // 注册弹窗
+            const registerModal = document.getElementById('register-modal');
+            const registerBtn = document.getElementById('register-btn');
+            const cancelRegister = document.getElementById('cancel-register');
+            const submitRegister = document.getElementById('submit-register');
+
+            registerBtn.addEventListener('click', () => registerModal.style.display = 'flex');
+            cancelRegister.addEventListener('click', () => registerModal.style.display = 'none');
+            registerModal.addEventListener('click', (e) => e.target === registerModal && (registerModal.style.display = 'none'));
+
+            // 注册提交
+            submitRegister.addEventListener('click', () => {
+                const username = document.getElementById('register-username').value.trim();
+                const password = document.getElementById('register-password').value.trim();
+
+                if (!username || !password) {
+                    alert('请输入用户名和密码');
+                    return;
+                }
+                if (password.length < 6) {
+                    alert('密码至少6位');
+                    return;
+                }
+                if (window.users?.some(u => u.username === username)) {
+                    alert('用户名已存在');
+                    return;
+                }
+
+                // 保存用户到Firebase
+                const newUser = {
+                    username,
+                    password,
+                    role: username === ADMIN_USERNAME ? 'admin' : 'user'
+                };
+                db.ref(`users/${username}`).set(newUser);
+                alert('注册成功');
+                registerModal.style.display = 'none';
+            });
+        }
+
+        // 退出登录
+        function initLogout() {
+            const logoutBtn = document.getElementById('logout-btn');
+            logoutBtn.addEventListener('click', () => {
                 currentUser = null;
                 localStorage.removeItem('guairen_user');
                 updateUserDisplay();
+                // 刷新成员卡片（隐藏管理员按钮）
+                const activeDept = document.querySelector('.dept-filter-btn.active').getAttribute('data-dept');
+                renderMemberCards(activeDept);
             });
         }
 
-        // 绘画大赛功能
-        function initPaintingContest() {
-            loadPaintingWorks();
-
-            const uploadArea = document.getElementById('uploadArea');
-            const fileInput = document.getElementById('fileInput');
-            const previewImg = document.getElementById('previewImg');
-            const submitBtn = document.getElementById('submitPaintingBtn');
-
-            // 点击上传
-            uploadArea.addEventListener('click', () => {
-                if (!currentUser) {
-                    showStatusMessage('请先登录再上传作品', 'error');
-                    return;
-                }
-                if (userPainting) {
-                    showStatusMessage('你已上传过作品，不可重复提交', 'error');
-                    return;
-                }
-                fileInput.click();
-            });
-
-            // 拖拽上传
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = '#000';
-            });
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.style.borderColor = '#E0E0E0';
-            });
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = '#E0E0E0';
-                if (!currentUser || userPainting) return;
-                if (e.dataTransfer.files.length) {
-                    handleFileSelect(e.dataTransfer.files[0]);
-                }
-            });
-
-            // 选择文件预览
-            fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length) {
-                    handleFileSelect(e.target.files[0]);
-                }
-            });
-
-            // 提交作品
-            submitBtn.addEventListener('click', uploadPainting);
-        }
-
-        // 处理文件选择
-        function handleFileSelect(file) {
-            if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
-                showStatusMessage('请上传JPG或PNG格式的图片', 'error');
-                return;
-            }
-            const previewImg = document.getElementById('previewImg');
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                previewImg.src = e.target.result;
-                previewImg.style.display = 'block';
-                document.getElementById('submitPaintingBtn').style.display = 'inline-block';
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // 上传作品到云端
-        function uploadPainting() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            if (!file || !currentUser) return;
-
-            showStatusMessage('上传中，请稍候...', 'success');
-
-            // 生成唯一文件名
-            const fileName = `paintings/${currentUser.username}_${Date.now()}_${file.name}`;
-            const storageRef = storage.ref(fileName);
-
-            // 上传文件
-            const uploadTask = storageRef.put(file);
-            uploadTask.on('state_changed',
-                null,
-                (error) => {
-                    showStatusMessage('上传失败：' + error.message, 'error');
-                },
-                () => {
-                    // 获取图片URL并保存信息
-                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                        const work = {
-                            id: Date.now().toString(),
-                            author: currentUser.username,
-                            url: downloadURL,
-                            createdAt: new Date().toLocaleString()
-                        };
-                        db.ref(`paintings/${work.id}`).set(work);
-                        showStatusMessage('作品上传成功！', 'success');
-                        document.getElementById('previewImg').style.display = 'none';
-                        document.getElementById('submitPaintingBtn').style.display = 'none';
-                        fileInput.value = '';
-                    });
-                }
-            );
-        }
-
-        // 加载绘画作品
-        function loadPaintingWorks() {
-            db.ref('paintings').on('value', (snapshot) => {
-                const data = snapshot.val();
-                paintingWorks = data ? Object.values(data) : [];
-                userPainting = currentUser ? paintingWorks.find(work => work.author === currentUser.username) : null;
-                renderPaintingPage();
-            });
-        }
-
-        // 渲染绘画大赛页面
-        function renderPaintingPage() {
-            const statusMessage = document.getElementById('statusMessage');
-            const worksList = document.getElementById('worksList');
-            const worksContainer = document.getElementById('worksContainer');
-
-            // 显示用户上传状态
-            if (currentUser && userPainting) {
-                showStatusMessage(`你已在 ${userPainting.createdAt} 上传作品，感谢参与！`, 'success');
-            }
-
-            // 管理员显示所有作品
-            if (currentUser && currentUser.username === ADMIN_USERNAME) {
-                worksList.style.display = 'block';
-                worksContainer.innerHTML = '';
-                if (paintingWorks.length === 0) {
-                    worksContainer.innerHTML = '<div style="text-align: center; padding: 20px;">暂无参赛作品</div>';
-                    return;
-                }
-                // 按时间倒序排列
-                paintingWorks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    .forEach(work => {
-                        const workItem = document.createElement('div');
-                        workItem.className = 'work-item';
-                        workItem.innerHTML = `
-                            <div class="work-header">
-                                <div class="thread-title">作品 #${work.id.substring(0, 6)}</div>
-                                <div class="work-meta">
-                                    <span>作者: ${work.author}</span>
-                                    <span>上传时间: ${work.createdAt}</span>
-                                </div>
-                            </div>
-                            <img src="${work.url}" alt="参赛作品" class="work-img">
-                        `;
-                        worksContainer.appendChild(workItem);
-                    });
-            } else {
-                worksList.style.display = 'none';
-            }
-        }
-
-        // 显示状态提示
-        function showStatusMessage(text, type) {
-            const statusEl = document.getElementById('statusMessage');
-            statusEl.textContent = text;
-            statusEl.className = 'status-message';
-            statusEl.classList.add(`status-${type}`);
-            if (type === 'success') {
-                setTimeout(() => {
-                    statusEl.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        // 模态框控制
-        function showLoginModal() {
-            document.getElementById('loginModal').classList.add('active');
-        }
-
-        function hideLoginModal() {
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('loginMessage').textContent = '';
-            document.getElementById('registerMessage').textContent = '';
-        }
-                // SXP收容所：全局变量
-        let sxpItems = [];
-        let currentSxpItemId = null;
-        
-        // SXP收容所：页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            initSxpFunctions();
-            loadSxpItemsFromCloud();
-        });
-        
-        // SXP收容所：加载云端数据
-        function loadSxpItemsFromCloud() {
-            db.ref('sxpItems').on('value', (snapshot) => {
-                const data = snapshot.val();
-                sxpItems = data ? Object.values(data) : [];
-                renderSxpItemList();
-            });
-        }
-        
-        // SXP收容所：保存收容项到云端
-        function saveSxpItemToCloud(item) {
-            db.ref(`sxpItems/${item.id}`).set(item);
-        }
-        
-        // SXP收容所：从云端删除收容项
-        function deleteSxpItemFromCloud(itemId) {
-            db.ref(`sxpItems/${itemId}`).remove();
-        }
-        
-        // SXP收容所：渲染收容列表
-        function renderSxpItemList() {
-            const container = document.getElementById('sxpListContainer');
-            const countEl = document.getElementById('sxpItemCount');
-            
-            container.innerHTML = '';
-            countEl.textContent = sxpItems.length;
-            
-            if (sxpItems.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #999; padding: 40px 0; border: 1px solid #E0E0E0;">暂无收容对象记录</div>';
-                return;
-            }
-            
-            // 按收容编号排序（升序）
-            sxpItems.sort((a, b) => {
-                const codeA = parseInt(a.code.replace('SXP-', ''));
-                const codeB = parseInt(b.code.replace('SXP-', ''));
-                return codeA - codeB;
-            }).forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'sxp-item-card';
-                card.innerHTML = `
-                    <div class="sxp-item-info">
-                        <div class="sxp-item-title">${item.name}</div>
-                        <div class="sxp-item-meta">
-                            <span>编号: ${item.code}</span>
-                            <span>等级: <span class="sxp-level ${item.level}">${item.level}</span></span>
-                            <span>备案时间: ${item.createdAt}</span>
-                        </div>
-                    </div>
-                    ${currentUser?.username === ADMIN_USERNAME ? 
-                        `<button class="delete-btn" data-sxp-id="${item.id}">删除</button>` : ''}
-                `;
-                
-                // 点击卡片查看详情
-                card.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('delete-btn')) {
-                        viewSxpItemDetail(item.id);
-                    }
-                });
-                
-                // 管理员删除功能
-                if (currentUser?.username === ADMIN_USERNAME) {
-                    const deleteBtn = card.querySelector('.delete-btn');
-                    deleteBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (confirm('确定要删除该收容档案吗？此操作不可恢复')) {
-                            deleteSxpItemFromCloud(item.id);
-                        }
-                    });
-                }
-                
-                container.appendChild(card);
-            });
-        }
-        
-        // SXP收容所：查看收容详情
-        function viewSxpItemDetail(itemId) {
-            const item = sxpItems.find(i => i.id === itemId);
-            if (!item) return;
-            
-            currentSxpItemId = itemId;
-            
-            // 填充详情数据
-            document.getElementById('sxpDetailTitle').textContent = item.name;
-            document.getElementById('sxpDetailCode').textContent = item.code;
-            document.getElementById('sxpDetailLevel').textContent = item.level;
-            document.getElementById('sxpDetailLevel').className = `sxp-level ${item.level}`;
-            document.getElementById('sxpDetailTime').textContent = item.createdAt;
-            document.getElementById('sxpDetailDesc').textContent = item.description;
-            
-            // 管理员操作按钮
-            const adminActions = document.getElementById('sxpAdminActions');
-            adminActions.style.display = currentUser?.username === ADMIN_USERNAME ? 'flex' : 'none';
-            
-            // 切换显示状态
-            document.getElementById('sxpListContainer').style.display = 'none';
-            document.getElementById('sxpForm').style.display = 'none';
-            document.getElementById('sxpDetail').style.display = 'block';
-        }
-        
-        // SXP收容所：初始化功能交互
-        function initSxpFunctions() {
-            // 新增收容项按钮
-            document.getElementById('newSxpItemBtn').addEventListener('click', () => {
-                if (!currentUser) {
-                    showLoginModal();
-                    return;
-                }
-                if (currentUser.username !== ADMIN_USERNAME) {
-                    showStatusMessage('仅管理员可新增收容项', 'error');
-                    return;
-                }
-                document.getElementById('sxpListContainer').style.display = 'none';
-                document.getElementById('sxpDetail').style.display = 'none';
-                document.getElementById('sxpForm').style.display = 'block';
-                document.getElementById('newSxpItemForm').reset();
-            });
-            
-            // 取消新增按钮
-            document.getElementById('cancelSxpBtn').addEventListener('click', () => {
-                document.getElementById('sxpListContainer').style.display = 'flex';
-                document.getElementById('sxpForm').style.display = 'none';
-            });
-            
-            // 提交新增收容项
-            document.getElementById('newSxpItemForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                if (!currentUser || currentUser.username !== ADMIN_USERNAME) return;
-                
-                const newItem = {
-                    id: Date.now().toString(),
-                    name: document.getElementById('sxpName').value,
-                    code: document.getElementById('sxpCode').value,
-                    level: document.getElementById('sxpLevel').value,
-                    description: document.getElementById('sxpDesc').value,
-                    createdAt: new Date().toLocaleString(),
-                    author: currentUser.username
-                };
-                
-                saveSxpItemToCloud(newItem);
-                document.getElementById('sxpListContainer').style.display = 'flex';
-                document.getElementById('sxpForm').style.display = 'none';
-                showStatusMessage('收容档案新增成功', 'success');
-            });
-            
-            // 返回收容列表按钮
-            document.getElementById('backToSxpListBtn').addEventListener('click', () => {
-                document.getElementById('sxpDetail').style.display = 'none';
-                document.getElementById('sxpListContainer').style.display = 'flex';
-                currentSxpItemId = null;
-            });
-            
-            // 删除收容项按钮
-            document.getElementById('deleteSxpItemBtn').addEventListener('click', () => {
-                if (currentUser?.username === ADMIN_USERNAME && currentSxpItemId) {
-                    if (confirm('确定要删除该收容档案吗？此操作不可恢复')) {
-                        deleteSxpItemFromCloud(currentSxpItemId);
-                        document.getElementById('backToSxpListBtn').click();
-                    }
-                }
-            });
-        }
-       // 修复：从Firebase加载成员数据（避免重复写入默认数据）
+        // 6. 成员数据初始化（Firebase加载+默认数据）
         function initMembersData() {
             const membersRef = db.ref('members');
-            // 用 once('value') 先读取一次，避免 on('value') 重复触发
+            // 首次读取（避免重复写入默认数据）
             membersRef.once('value').then((snapshot) => {
                 const data = snapshot.val();
                 if (!data) {
-                    // 首次加载：初始化默认成员数据（仅执行一次）
+                    // 默认成员数据
                     const defaultMembers = [
                         { id: '1', name: '王沛霖', dept: 'defense', deptName: '会防部', role: '部长', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
                         { id: '2', name: '王楚恩', dept: 'defense', deptName: '会防部', role: '成员', gender: '女', currentPunishment: '无', historyPunishment: ['无'] },
@@ -1802,33 +473,33 @@
                         { id: '15', name: '夏浚宸', dept: 'info-sec', deptName: '信息安全部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
                         { id: '16', name: '丁嘉禾', dept: 'info-sec', deptName: '信息安全部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'] }
                     ];
-                    // 批量写入默认数据（仅一次）
-                    membersRef.set(defaultMembers.reduce((obj, member) => {
+                    // 批量写入Firebase
+                    const membersObj = defaultMembers.reduce((obj, member) => {
                         obj[member.id] = member;
                         return obj;
-                    }, {}));
+                    }, {});
+                    membersRef.set(membersObj);
                     members = defaultMembers;
                 } else {
                     members = Object.values(data);
                 }
-                // 首次渲染全部成员
                 renderMemberCards('all');
             });
-        
-            // 实时监听后续数据变化（比如添加处分后刷新）
+
+            // 实时监听成员数据变化（添加处分后刷新）
             membersRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) members = Object.values(data);
-                renderMemberCards(document.querySelector('.dept-filter-btn.active').getAttribute('data-dept'));
+                const activeDept = document.querySelector('.dept-filter-btn.active').getAttribute('data-dept');
+                renderMemberCards(activeDept);
             });
         }
-        
-        // 修复：部门筛选逻辑（确保按钮DOM已加载）
+
+        // 7. 部门筛选逻辑
         function initMemberFilter() {
             const filterBtns = document.querySelectorAll('.dept-filter-btn');
-            // 避免筛选按钮不存在导致报错
             if (!filterBtns.length) return;
-            
+
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     filterBtns.forEach(b => b.classList.remove('active'));
@@ -1838,29 +509,28 @@
                 });
             });
         }
-        
-        // 修复：渲染成员名片（兼容currentUser未初始化）
+
+        // 8. 渲染成员名片
         function renderMemberCards(dept) {
             const container = document.querySelector('.member-cards-container');
-            // 避免容器不存在导致报错
             if (!container) return;
             container.innerHTML = '';
-        
+
             // 筛选部门成员
             const filteredMembers = dept === 'all' ? members : members.filter(m => m.dept === dept);
-        
+
             if (filteredMembers.length === 0) {
                 container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px 0; color: #999;">该部门暂无成员</div>';
                 return;
             }
-        
+
             // 按部门分组
             const deptGroups = {};
             filteredMembers.forEach(member => {
                 if (!deptGroups[member.deptName]) deptGroups[member.deptName] = [];
                 deptGroups[member.deptName].push(member);
             });
-        
+
             // 渲染每个部门
             for (const deptName in deptGroups) {
                 // 部门标题
@@ -1872,7 +542,7 @@
                 deptTitle.style.marginBottom = '12px';
                 deptTitle.textContent = deptName;
                 container.appendChild(deptTitle);
-        
+
                 // 渲染成员名片
                 deptGroups[deptName].forEach(member => {
                     const card = document.createElement('div');
@@ -1882,20 +552,20 @@
                     card.style.padding = '20px';
                     card.style.transition = 'background 0.3s';
                     card.style.position = 'relative';
-        
+
                     // hover效果
                     card.addEventListener('mouseenter', () => card.style.background = '#F9F9F9');
                     card.addEventListener('mouseleave', () => card.style.background = '#fff');
-        
+
                     // 跨部门标识
                     const crossDeptTag = member.crossDept ? 
                         `<div style="position: absolute; top: 12px; right: 12px; padding: 2px 8px; border: 1px solid #ccc; font-size: 12px; color: #666; border-radius: 12px;">跨部门：${member.crossDept}</div>` : '';
-        
-                    // 管理员添加处分按钮（兼容currentUser为null）
+
+                    // 管理员添加处分按钮
                     const isAdmin = currentUser && currentUser.username === ADMIN_USERNAME;
                     const addPunishmentBtn = isAdmin ? 
                         `<button class="add-punishment-btn" data-member-id="${member.id}" style="width: 100%; margin-top: 16px; padding: 8px 0; border: 1px solid #000; background: #fff; cursor: pointer; transition: background 0.3s;">添加处分</button>` : '';
-        
+
                     // 名片内容
                     card.innerHTML = `
                         ${crossDeptTag}
@@ -1914,46 +584,46 @@
                         </div>
                         ${addPunishmentBtn}
                     `;
-        
+
                     container.appendChild(card);
                 });
             }
-        
-            // 绑定添加处分按钮（仅管理员）
+
+            // 绑定添加处分按钮事件
             if (isAdmin) bindAddPunishmentBtn();
         }
-        
-        // 修复：初始化处分弹窗（避免DOM元素不存在报错）
+
+        // 9. 处分弹窗逻辑
         function initPunishmentModal() {
             const modal = document.querySelector('.punishment-modal');
             const cancelBtn = document.getElementById('cancel-punishment');
             const confirmBtn = document.getElementById('confirm-punishment');
             const contentInput = document.getElementById('punishment-content');
             const targetIdInput = document.getElementById('target-member-id');
-        
-            // 检查弹窗相关DOM是否存在
+
             if (!modal || !cancelBtn || !confirmBtn || !contentInput || !targetIdInput) return;
-        
+
             // 取消按钮
             cancelBtn.addEventListener('click', () => {
                 modal.style.display = 'none';
                 contentInput.value = '';
             });
-        
+
             // 确认添加处分
             confirmBtn.addEventListener('click', () => {
                 const memberId = targetIdInput.value;
-                const type = document.getElementById('punishment-type')?.value || 'current';
+                const type = document.getElementById('punishment-type').value || 'current';
                 const content = contentInput.value.trim();
-        
+
                 if (!content) {
                     alert('请输入处分内容');
                     return;
                 }
-        
+
                 const memberIndex = members.findIndex(m => m.id === memberId);
                 if (memberIndex === -1) return;
-        
+
+                // 更新成员处分数据
                 const updatedMember = { ...members[memberIndex] };
                 if (type === 'current') {
                     updatedMember.currentPunishment = content;
@@ -1962,13 +632,13 @@
                         updatedMember.historyPunishment.push(content);
                     }
                 }
-        
-                // 更新Firebase数据
+
+                // 保存到Firebase
                 db.ref(`members/${memberId}`).set(updatedMember);
                 modal.style.display = 'none';
                 contentInput.value = '';
             });
-        
+
             // 点击空白处关闭
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
@@ -1977,18 +647,17 @@
                 }
             });
         }
-        
-        // 修复：绑定添加处分按钮（避免重复绑定）
+
+        // 10. 绑定添加处分按钮事件
         function bindAddPunishmentBtn() {
             const btns = document.querySelectorAll('.add-punishment-btn');
             btns.forEach(btn => {
-                // 先移除已有事件，避免重复绑定
                 btn.removeEventListener('click', handleAddPunishmentClick);
                 btn.addEventListener('click', handleAddPunishmentClick);
             });
         }
-        
-        // 新增：单独的按钮点击处理函数（避免重复代码）
+
+        // 处分按钮点击处理
         function handleAddPunishmentClick() {
             const memberId = this.getAttribute('data-member-id');
             document.getElementById('target-member-id').value = memberId;
@@ -1997,6 +666,3 @@
     </script>
 </body>
 </html>
-
-
-
