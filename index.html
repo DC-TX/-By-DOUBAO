@@ -601,6 +601,66 @@
                 gap: 12px;
             }
         }
+                /* SXP收容所新增样式 */
+        .sxp-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .sxp-item-card {
+            padding: 20px;
+            border: 1px solid #E0E0E0;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sxp-item-card:hover {
+            background-color: #F9F9F9;
+        }
+        .sxp-item-info {
+            flex: 1;
+        }
+        .sxp-item-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .sxp-item-meta {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            gap: 16px;
+        }
+        .sxp-level {
+            padding: 2px 8px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .sxp-level.安全 {
+            border: 1px solid #4cd964;
+            color: #2e7d32;
+        }
+        .sxp-level.Euclid {
+            border: 1px solid #ffc107;
+            color: #ff8f00;
+        }
+        .sxp-level.危险 {
+            border: 1px solid #ff9494;
+            color: #d32f2f;
+        }
+        @media (max-width: 768px) {
+            .sxp-item-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .sxp-item-meta {
+                flex-wrap: wrap;
+            }
+        }
     </style>
 </head>
 <body>
@@ -612,6 +672,7 @@
             <div class="nav-item" data-target="join-page">加入我们</div>
             <div class="nav-item" data-target="forum-page">协会论坛</div>
             <div class="nav-item" data-target="painting-page">绘画大赛</div> <!-- 绘画大赛导航 -->
+            <div class="nav-item" data-target="sxp-page">SXP收容所</div>
             <div class="user-status">
                 <span class="username-display">未登录</span>
                 <span class="login-btn" id="loginBtn">登录</span>
@@ -667,6 +728,7 @@
     </div>
 
     <div class="content-container">
+        
         <section id="home-page" class="page-section active">
             <div class="logo-section">
                 <img src="怪人协会会标.jpg" alt="怪人协会会标" class="association-logo">
@@ -858,6 +920,70 @@
                 <div class="works-list" id="worksList" style="display: none;">
                     <h3 class="page-title">所有参赛作品</h3>
                     <div id="worksContainer"></div>
+                </div>
+            </div>
+        </section>
+        <!-- SXP收容所页面 -->
+        <section id="sxp-page" class="page-section">
+            <h2 class="page-title">SXP收容所 - 特殊对象管理</h2>
+            <div class="title-line"></div>
+            <div class="intro-section">
+                <p class="intro-text">SXP收容所负责记录、管理协会接触的特殊对象，建立标准化收容档案，确保异质力量可控、可追溯。以下为已备案的收容对象列表（管理员可新增/删除收容项）。</p>
+            </div>
+            <div class="forum-controls" style="margin-bottom: 24px;">
+                <div>已收容 <span id="sxpItemCount">0</span> 个特殊对象</div>
+                <button class="new-thread-btn" id="newSxpItemBtn">新增收容项</button>
+            </div>
+            <!-- 收容列表 -->
+            <div class="sxp-list" id="sxpListContainer">
+                <!-- 列表内容由JS动态渲染 -->
+            </div>
+            <!-- 新增收容项表单 -->
+            <div class="thread-form" id="sxpForm" style="display: none;">
+                <h3 class="page-title">新增收容对象</h3>
+                <form id="newSxpItemForm">
+                    <div class="form-group">
+                        <label class="form-label" for="sxpName">对象名称</label>
+                        <input type="text" id="sxpName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sxpCode">收容编号（SXP-XXX）</label>
+                        <input type="text" id="sxpCode" class="form-input" required placeholder="例：SXP-001">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sxpLevel">收容等级</label>
+                        <select id="sxpLevel" class="form-input" required>
+                            <option value="安全">安全（Safe）</option>
+                            <option value="Euclid">Euclid（需监控）</option>
+                            <option value="危险">危险（Keter）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sxpDesc">收容描述</label>
+                        <textarea id="sxpDesc" class="form-textarea" required placeholder="请描述对象特性、收容措施、风险提示等"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="form-submit">保存收容档案</button>
+                        <button type="button" class="form-submit" id="cancelSxpBtn" style="margin-left: 10px;">取消</button>
+                    </div>
+                </form>
+            </div>
+            <!-- 收容详情 -->
+            <div class="thread-detail" id="sxpDetail" style="display: none;">
+                <button type="button" class="form-submit" id="backToSxpListBtn" style="margin-bottom: 20px;">返回收容列表</button>
+                <div class="thread-detail-content">
+                    <div class="thread-header">
+                        <div class="thread-title" id="sxpDetailTitle"></div>
+                        <div class="thread-meta">
+                            <span>收容编号: <span id="sxpDetailCode"></span></span>
+                            <span>收容等级: <span id="sxpDetailLevel" class="sxp-level"></span></span>
+                            <span>备案时间: <span id="sxpDetailTime"></span></span>
+                        </div>
+                    </div>
+                    <div class="thread-content" id="sxpDetailDesc" style="margin-top: 24px; line-height: 1.8;"></div>
+                    <div class="admin-actions" id="sxpAdminActions" style="display: none;">
+                        <button class="delete-btn" id="deleteSxpItemBtn">删除收容档案</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1463,6 +1589,179 @@
             document.getElementById('loginMessage').textContent = '';
             document.getElementById('registerMessage').textContent = '';
         }
+                // SXP收容所：全局变量
+        let sxpItems = [];
+        let currentSxpItemId = null;
+        
+        // SXP收容所：页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initSxpFunctions();
+            loadSxpItemsFromCloud();
+        });
+        
+        // SXP收容所：加载云端数据
+        function loadSxpItemsFromCloud() {
+            db.ref('sxpItems').on('value', (snapshot) => {
+                const data = snapshot.val();
+                sxpItems = data ? Object.values(data) : [];
+                renderSxpItemList();
+            });
+        }
+        
+        // SXP收容所：保存收容项到云端
+        function saveSxpItemToCloud(item) {
+            db.ref(`sxpItems/${item.id}`).set(item);
+        }
+        
+        // SXP收容所：从云端删除收容项
+        function deleteSxpItemFromCloud(itemId) {
+            db.ref(`sxpItems/${itemId}`).remove();
+        }
+        
+        // SXP收容所：渲染收容列表
+        function renderSxpItemList() {
+            const container = document.getElementById('sxpListContainer');
+            const countEl = document.getElementById('sxpItemCount');
+            
+            container.innerHTML = '';
+            countEl.textContent = sxpItems.length;
+            
+            if (sxpItems.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #999; padding: 40px 0; border: 1px solid #E0E0E0;">暂无收容对象记录</div>';
+                return;
+            }
+            
+            // 按收容编号排序（升序）
+            sxpItems.sort((a, b) => {
+                const codeA = parseInt(a.code.replace('SXP-', ''));
+                const codeB = parseInt(b.code.replace('SXP-', ''));
+                return codeA - codeB;
+            }).forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'sxp-item-card';
+                card.innerHTML = `
+                    <div class="sxp-item-info">
+                        <div class="sxp-item-title">${item.name}</div>
+                        <div class="sxp-item-meta">
+                            <span>编号: ${item.code}</span>
+                            <span>等级: <span class="sxp-level ${item.level}">${item.level}</span></span>
+                            <span>备案时间: ${item.createdAt}</span>
+                        </div>
+                    </div>
+                    ${currentUser?.username === ADMIN_USERNAME ? 
+                        `<button class="delete-btn" data-sxp-id="${item.id}">删除</button>` : ''}
+                `;
+                
+                // 点击卡片查看详情
+                card.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('delete-btn')) {
+                        viewSxpItemDetail(item.id);
+                    }
+                });
+                
+                // 管理员删除功能
+                if (currentUser?.username === ADMIN_USERNAME) {
+                    const deleteBtn = card.querySelector('.delete-btn');
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (confirm('确定要删除该收容档案吗？此操作不可恢复')) {
+                            deleteSxpItemFromCloud(item.id);
+                        }
+                    });
+                }
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // SXP收容所：查看收容详情
+        function viewSxpItemDetail(itemId) {
+            const item = sxpItems.find(i => i.id === itemId);
+            if (!item) return;
+            
+            currentSxpItemId = itemId;
+            
+            // 填充详情数据
+            document.getElementById('sxpDetailTitle').textContent = item.name;
+            document.getElementById('sxpDetailCode').textContent = item.code;
+            document.getElementById('sxpDetailLevel').textContent = item.level;
+            document.getElementById('sxpDetailLevel').className = `sxp-level ${item.level}`;
+            document.getElementById('sxpDetailTime').textContent = item.createdAt;
+            document.getElementById('sxpDetailDesc').textContent = item.description;
+            
+            // 管理员操作按钮
+            const adminActions = document.getElementById('sxpAdminActions');
+            adminActions.style.display = currentUser?.username === ADMIN_USERNAME ? 'flex' : 'none';
+            
+            // 切换显示状态
+            document.getElementById('sxpListContainer').style.display = 'none';
+            document.getElementById('sxpForm').style.display = 'none';
+            document.getElementById('sxpDetail').style.display = 'block';
+        }
+        
+        // SXP收容所：初始化功能交互
+        function initSxpFunctions() {
+            // 新增收容项按钮
+            document.getElementById('newSxpItemBtn').addEventListener('click', () => {
+                if (!currentUser) {
+                    showLoginModal();
+                    return;
+                }
+                if (currentUser.username !== ADMIN_USERNAME) {
+                    showStatusMessage('仅管理员可新增收容项', 'error');
+                    return;
+                }
+                document.getElementById('sxpListContainer').style.display = 'none';
+                document.getElementById('sxpDetail').style.display = 'none';
+                document.getElementById('sxpForm').style.display = 'block';
+                document.getElementById('newSxpItemForm').reset();
+            });
+            
+            // 取消新增按钮
+            document.getElementById('cancelSxpBtn').addEventListener('click', () => {
+                document.getElementById('sxpListContainer').style.display = 'flex';
+                document.getElementById('sxpForm').style.display = 'none';
+            });
+            
+            // 提交新增收容项
+            document.getElementById('newSxpItemForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!currentUser || currentUser.username !== ADMIN_USERNAME) return;
+                
+                const newItem = {
+                    id: Date.now().toString(),
+                    name: document.getElementById('sxpName').value,
+                    code: document.getElementById('sxpCode').value,
+                    level: document.getElementById('sxpLevel').value,
+                    description: document.getElementById('sxpDesc').value,
+                    createdAt: new Date().toLocaleString(),
+                    author: currentUser.username
+                };
+                
+                saveSxpItemToCloud(newItem);
+                document.getElementById('sxpListContainer').style.display = 'flex';
+                document.getElementById('sxpForm').style.display = 'none';
+                showStatusMessage('收容档案新增成功', 'success');
+            });
+            
+            // 返回收容列表按钮
+            document.getElementById('backToSxpListBtn').addEventListener('click', () => {
+                document.getElementById('sxpDetail').style.display = 'none';
+                document.getElementById('sxpListContainer').style.display = 'flex';
+                currentSxpItemId = null;
+            });
+            
+            // 删除收容项按钮
+            document.getElementById('deleteSxpItemBtn').addEventListener('click', () => {
+                if (currentUser?.username === ADMIN_USERNAME && currentSxpItemId) {
+                    if (confirm('确定要删除该收容档案吗？此操作不可恢复')) {
+                        deleteSxpItemFromCloud(currentSxpItemId);
+                        document.getElementById('backToSxpListBtn').click();
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
+
