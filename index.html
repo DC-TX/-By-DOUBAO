@@ -1041,6 +1041,7 @@
             initPaintingContest(); // 初始化绘画大赛
             initMembersData(); 
             initPunishmentModal();
+            initMemberFilter(); // 👉 移到最后，确保筛选按钮DOM已存在
         });
 
         // 用户状态初始化
@@ -1775,12 +1776,14 @@
                 }
             });
         }
+       // 修复：从Firebase加载成员数据（避免重复写入默认数据）
         function initMembersData() {
             const membersRef = db.ref('members');
-            membersRef.on('value', (snapshot) => {
+            // 用 once('value') 先读取一次，避免 on('value') 重复触发
+            membersRef.once('value').then((snapshot) => {
                 const data = snapshot.val();
                 if (!data) {
-                    // 首次加载：初始化默认成员数据（包含性别、处分字段）
+                    // 首次加载：初始化默认成员数据（仅执行一次）
                     const defaultMembers = [
                         { id: '1', name: '王沛霖', dept: 'defense', deptName: '会防部', role: '部长', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
                         { id: '2', name: '王楚恩', dept: 'defense', deptName: '会防部', role: '成员', gender: '女', currentPunishment: '无', historyPunishment: ['无'] },
@@ -1799,37 +1802,51 @@
                         { id: '15', name: '夏浚宸', dept: 'info-sec', deptName: '信息安全部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
                         { id: '16', name: '丁嘉禾', dept: 'info-sec', deptName: '信息安全部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'] }
                     ];
-                    defaultMembers.forEach(member => {
-                        membersRef.child(member.id).set(member);
-                    });
+                    // 批量写入默认数据（仅一次）
+                    membersRef.set(defaultMembers.reduce((obj, member) => {
+                        obj[member.id] = member;
+                        return obj;
+                    }, {}));
                     members = defaultMembers;
                 } else {
                     members = Object.values(data);
                 }
-                renderMemberCards('all'); // 默认渲染全部部门成员
+                // 首次渲染全部成员
+                renderMemberCards('all');
+            });
+        
+            // 实时监听后续数据变化（比如添加处分后刷新）
+            membersRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) members = Object.values(data);
+                renderMemberCards(document.querySelector('.dept-filter-btn.active').getAttribute('data-dept'));
             });
         }
         
-        // 替换原 initMemberFilter 函数：部门筛选逻辑
+        // 修复：部门筛选逻辑（确保按钮DOM已加载）
         function initMemberFilter() {
             const filterBtns = document.querySelectorAll('.dept-filter-btn');
+            // 避免筛选按钮不存在导致报错
+            if (!filterBtns.length) return;
+            
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    // 切换激活状态
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     const dept = btn.getAttribute('data-dept');
-                    renderMemberCards(dept); // 按选中部门渲染名片
+                    renderMemberCards(dept);
                 });
             });
         }
         
-        // 新增：渲染成员名片（按部门分类）
+        // 修复：渲染成员名片（兼容currentUser未初始化）
         function renderMemberCards(dept) {
             const container = document.querySelector('.member-cards-container');
+            // 避免容器不存在导致报错
+            if (!container) return;
             container.innerHTML = '';
         
-            // 筛选部门成员（all 显示全部）
+            // 筛选部门成员
             const filteredMembers = dept === 'all' ? members : members.filter(m => m.dept === dept);
         
             if (filteredMembers.length === 0) {
@@ -1837,16 +1854,14 @@
                 return;
             }
         
-            // 按部门分组（即使筛选单个部门，也保持分组结构）
+            // 按部门分组
             const deptGroups = {};
             filteredMembers.forEach(member => {
-                if (!deptGroups[member.deptName]) {
-                    deptGroups[member.deptName] = [];
-                }
+                if (!deptGroups[member.deptName]) deptGroups[member.deptName] = [];
                 deptGroups[member.deptName].push(member);
             });
         
-            // 渲染每个部门的成员
+            // 渲染每个部门
             for (const deptName in deptGroups) {
                 // 部门标题
                 const deptTitle = document.createElement('div');
@@ -1858,7 +1873,7 @@
                 deptTitle.textContent = deptName;
                 container.appendChild(deptTitle);
         
-                // 成员名片
+                // 渲染成员名片
                 deptGroups[deptName].forEach(member => {
                     const card = document.createElement('div');
                     card.className = 'member-card';
@@ -1868,20 +1883,17 @@
                     card.style.transition = 'background 0.3s';
                     card.style.position = 'relative';
         
-                    // 名片hover效果
-                    card.addEventListener('mouseenter', () => {
-                        card.style.background = '#F9F9F9';
-                    });
-                    card.addEventListener('mouseleave', () => {
-                        card.style.background = '#fff';
-                    });
+                    // hover效果
+                    card.addEventListener('mouseenter', () => card.style.background = '#F9F9F9');
+                    card.addEventListener('mouseleave', () => card.style.background = '#fff');
         
-                    // 跨部门标识（如有）
+                    // 跨部门标识
                     const crossDeptTag = member.crossDept ? 
                         `<div style="position: absolute; top: 12px; right: 12px; padding: 2px 8px; border: 1px solid #ccc; font-size: 12px; color: #666; border-radius: 12px;">跨部门：${member.crossDept}</div>` : '';
         
-                    // 管理员添加处分按钮（仅管理员可见）
-                    const addPunishmentBtn = currentUser?.username === ADMIN_USERNAME ? 
+                    // 管理员添加处分按钮（兼容currentUser为null）
+                    const isAdmin = currentUser && currentUser.username === ADMIN_USERNAME;
+                    const addPunishmentBtn = isAdmin ? 
                         `<button class="add-punishment-btn" data-member-id="${member.id}" style="width: 100%; margin-top: 16px; padding: 8px 0; border: 1px solid #000; background: #fff; cursor: pointer; transition: background 0.3s;">添加处分</button>` : '';
         
                     // 名片内容
@@ -1907,34 +1919,38 @@
                 });
             }
         
-            // 绑定添加处分按钮事件
-            bindAddPunishmentBtn();
+            // 绑定添加处分按钮（仅管理员）
+            if (isAdmin) bindAddPunishmentBtn();
         }
         
-        // 新增：初始化处分弹窗
+        // 修复：初始化处分弹窗（避免DOM元素不存在报错）
         function initPunishmentModal() {
             const modal = document.querySelector('.punishment-modal');
             const cancelBtn = document.getElementById('cancel-punishment');
             const confirmBtn = document.getElementById('confirm-punishment');
+            const contentInput = document.getElementById('punishment-content');
+            const targetIdInput = document.getElementById('target-member-id');
+        
+            // 检查弹窗相关DOM是否存在
+            if (!modal || !cancelBtn || !confirmBtn || !contentInput || !targetIdInput) return;
         
             // 取消按钮
             cancelBtn.addEventListener('click', () => {
                 modal.style.display = 'none';
-                document.getElementById('punishment-content').value = '';
+                contentInput.value = '';
             });
         
             // 确认添加处分
             confirmBtn.addEventListener('click', () => {
-                const memberId = document.getElementById('target-member-id').value;
-                const type = document.getElementById('punishment-type').value;
-                const content = document.getElementById('punishment-content').value.trim();
+                const memberId = targetIdInput.value;
+                const type = document.getElementById('punishment-type')?.value || 'current';
+                const content = contentInput.value.trim();
         
                 if (!content) {
                     alert('请输入处分内容');
                     return;
                 }
         
-                // 找到目标成员并更新处分
                 const memberIndex = members.findIndex(m => m.id === memberId);
                 if (memberIndex === -1) return;
         
@@ -1942,7 +1958,6 @@
                 if (type === 'current') {
                     updatedMember.currentPunishment = content;
                 } else {
-                    // 既往处分去重，避免重复添加
                     if (!updatedMember.historyPunishment.includes(content)) {
                         updatedMember.historyPunishment.push(content);
                     }
@@ -1951,33 +1966,37 @@
                 // 更新Firebase数据
                 db.ref(`members/${memberId}`).set(updatedMember);
                 modal.style.display = 'none';
-                document.getElementById('punishment-content').value = '';
+                contentInput.value = '';
             });
         
-            // 点击空白处关闭弹窗
+            // 点击空白处关闭
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     modal.style.display = 'none';
-                    document.getElementById('punishment-content').value = '';
+                    contentInput.value = '';
                 }
             });
         }
         
-        // 新增：绑定添加处分按钮事件
+        // 修复：绑定添加处分按钮（避免重复绑定）
         function bindAddPunishmentBtn() {
             const btns = document.querySelectorAll('.add-punishment-btn');
             btns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const memberId = btn.getAttribute('data-member-id');
-                    document.getElementById('target-member-id').value = memberId;
-                    document.querySelector('.punishment-modal').style.display = 'flex';
-                });
+                // 先移除已有事件，避免重复绑定
+                btn.removeEventListener('click', handleAddPunishmentClick);
+                btn.addEventListener('click', handleAddPunishmentClick);
             });
         }
         
-        // 原有其他函数（initUserStatus、updateUserDisplay、loadDataFromCloud等）保持不变
+        // 新增：单独的按钮点击处理函数（避免重复代码）
+        function handleAddPunishmentClick() {
+            const memberId = this.getAttribute('data-member-id');
+            document.getElementById('target-member-id').value = memberId;
+            document.querySelector('.punishment-modal').style.display = 'flex';
+        }
     </script>
 </body>
 </html>
+
 
 
