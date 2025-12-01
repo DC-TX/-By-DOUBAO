@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>怪人协会论坛</title>
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial, sans-serif}
+body{background:#f9f9f9;color:#222}
+.container{width:1100px;max-width:100%;margin:0 auto;padding:20px}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+.logo{font-weight:700}
+.controls{display:flex;gap:10px;align-items:center}
+.btn{padding:8px 12px;border-radius:6px;border:1px solid #000;background:#fff;cursor:pointer}
+.btn-primary{background:#000;color:#fff}
+.board-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px}
+.post-box{background:#fff;padding:14px;border-radius:8px;border:1px solid #e6e6e6}
+.post-item{background:#fff;border:1px solid #eee;padding:12px;border-radius:6px;display:flex;gap:12px;align-items:flex-start}
+.avatar{width:48px;height:48px;border-radius:50%;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.post-meta{font-size:12px;color:#666}
+.comment-list{margin-top:10px;border-top:1px dashed #eee;padding-top:10px}
+.modal{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:99}
+.modal .modal-content{background:#fff;padding:16px;border-radius:8px;width:720px;max-width:94%}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">怪人协会论坛</div>
+    <div class="controls">
+      <a href="index.html" class="btn">返回成员页</a>
+      <div id="user-status" style="font-size:14px;color:#333"></div>
+    </div>
+  </div>
+
+  <div class="post-box">
+    <div style="font-weight:700;margin-bottom:8px">发新帖（登录后可发）</div>
+    <input id="post-title" placeholder="标题" style="width:100%;padding:10px;border:1px solid #e6e6e6;border-radius:6px;margin-bottom:8px">
+    <textarea id="post-content" placeholder="内容" style="width:100%;min-height:120px;padding:10px;border:1px solid #e6e6e6;border-radius:6px"></textarea>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+      <button id="clear-post" class="btn">清空</button>
+      <button id="submit-post" class="btn btn-primary">发布帖子</button>
+    </div>
+  </div>
+
+  <div id="boards" class="board-grid"></div>
+</div>
+
+<!-- post modal -->
+<div class="modal" id="post-modal">
+  <div class="modal-content">
+    <h3 id="modal-title"></h3>
+    <div id="modal-meta" style="color:#666;margin-bottom:8px"></div>
+    <div id="modal-body" style="white-space:pre-wrap"></div>
+    <div style="margin-top:12px">
+      <div style="font-weight:700">评论</div>
+      <div id="modal-comments" class="comment-list"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;align-items:flex-start">
+        <div class="avatar" id="comment-avatar"><img src="https://via.placeholder.com/48"></div>
+        <textarea id="comment-input" style="flex:1;padding:8px;border:1px solid #e6e6e6;border-radius:6px"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+        <button id="cancel-comment" class="btn">取消</button>
+        <button id="submit-comment" class="btn btn-primary">发布评论</button>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:12px"><button id="close-post-modal" class="btn">关闭</button></div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+/* ========== 配置：请替换为你的 firebaseConfig ========== */
+const firebaseConfig = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME",
+  databaseURL: "REPLACE_ME",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME"
+};
+/* ============================================================ */
+const fb = window.firebase;
+if(!fb.apps?.length) fb.initializeApp(firebaseConfig);
+const auth = fb.auth();
+const db = fb.database();
+
+const BOARDS = { tactics:'作战经验', recruit:'招新公告', intel:'情报快报' };
+let currentUser = null;
+window.users = window.users || {};
+
+/* UI init */
+document.addEventListener('DOMContentLoaded', ()=>{
+  initAuth();
+  setupUI();
+  listenBoards();
+});
+
+function setupUI(){
+  $('#boards').innerHTML='';
+  for(const k in BOARDS){
+    const card = document.createElement('div'); card.className='board-card';
+    card.innerHTML = `<div style="font-weight:700;margin-bottom:8px">${BOARDS[k]}</div><div id="posts-${k}"><div style="color:#999">加载中...</div></div>`;
+    $('#boards').appendChild(card);
+  }
+  $('#clear-post').addEventListener('click', ()=>{ $('#post-title').value=''; $('#post-content').value=''; });
+  $('#submit-post').addEventListener('click', submitPost);
+  $('#close-post-modal').addEventListener('click', ()=> $('#post-modal').style.display='none');
+  $('#cancel-comment').addEventListener('click', ()=> $('#comment-input').value='');
+  $('#submit-comment').addEventListener('click', submitComment);
+}
+
+/* auth */
+function initAuth(){
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      const uid = user.uid; currentUser = { uid, email:user.email };
+      // load users snapshot
+      const snap = await db.ref('users/'+uid).get();
+      if(snap.exists()) window.users[uid]=snap.val();
+      // update user status
+      $('#user-status').textContent = '当前：' + (window.users[uid]?.nickname || user.email);
+      // set comment avatar
+      $('#comment-avatar img').src = window.users[uid]?.avatar || 'https://via.placeholder.com/48';
+    } else {
+      currentUser = null;
+      $('#user-status').textContent = '未登录（请回成员页登录）';
+      $('#comment-avatar img').src = 'https://via.placeholder.com/48';
+    }
+  });
+}
+
+/* boards listener */
+function listenBoards(){
+  for(const k in BOARDS){
+    db.ref('forum/'+k).on('value', snap=>{
+      const val = snap.val();
+      renderBoard(k, val || {});
+    });
+  }
+}
+function renderBoard(boardKey, data){
+  const postsEl = $('#posts-'+boardKey);
+  postsEl.innerHTML='';
+  const items = Object.entries(data).map(([id,v])=>({id,...v})).sort((a,b)=>b.timestamp - a.timestamp);
+  if(items.length===0){ postsEl.innerHTML='<div style="color:#999">暂无帖子</div>'; return; }
+  items.forEach(item=>{
+    const row = document.createElement('div'); row.className='post-item';
+    const userObj = window.users[item.author] || { nickname:item.author, avatar:'' };
+    row.innerHTML = `<div class="avatar"><img src="${userObj.avatar||'https://via.placeholder.com/48'}"></div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">${escapeHtml(item.title)}</div>
+          <div class="post-meta">${new Date(item.timestamp).toLocaleString()} · ${escapeHtml(userObj.nickname||item.author)}</div>
+        </div>
+        <div style="margin-top:8px;color:#444">${truncate(escapeHtml(item.content),180)}</div>
+        <div class="post-actions" style="margin-top:8px"></div>
+      </div>`;
+    postsEl.appendChild(row);
+    // actions
+    const actions = row.querySelector('.post-actions');
+    const isAuthor = currentUser && currentUser.uid === item.author;
+    const isAdmin = currentUser && (window.users && window.users[currentUser.uid] && window.users[currentUser.uid].role==='admin');
+    if(isAuthor){
+      const edit = createBtn('编辑', ()=> editPost(boardKey, item));
+      actions.appendChild(edit);
+    }
+    if(isAuthor || isAdmin){
+      const del = createBtn('删除', ()=> {
+        if(confirm('确认删除？')) db.ref('forum/'+boardKey+'/'+item.id).remove();
+      });
+      actions.appendChild(del);
+    }
+    row.addEventListener('click',(e)=>{
+      if(e.target.closest('.post-actions')) return;
+      openPostModal(boardKey, item);
+    });
+  });
+}
+
+/* helpers */
+function createBtn(text, onClick){
+  const b = document.createElement('button'); b.className='btn'; b.style.marginLeft='6px'; b.textContent=text; b.addEventListener('click', (e)=>{ e.stopPropagation(); onClick(); });
+  return b;
+}
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function truncate(s,n){ return s.length>n? s.slice(0,n)+'...': s; }
+
+/* posting */
+async function submitPost(){
+  if(!currentUser){ alert('请先登录（成员页）'); return; }
+  const title = $('#post-title').value.trim(); const content = $('#post-content').value.trim();
+  if(!title||!content){ alert('标题与内容不能为空'); return; }
+  const boardKey = 'tactics'; // 默认发到作战经验，前端可扩展选择
+  const post = { author: currentUser.uid, title, content, timestamp: Date.now() };
+  const ref = db.ref('forum/'+boardKey).push();
+  await ref.set(post);
+  $('#post-title').value=''; $('#post-content').value='';
+  alert('发布成功');
+}
+
+/* post modal */
+function openPostModal(boardKey,item){
+  $('#post-modal').style.display='flex';
+  $('#modal-title').textContent = item.title;
+  $('#modal-meta').textContent = BOARDS[boardKey] + ' · ' + new Date(item.timestamp).toLocaleString();
+  $('#modal-body').textContent = item.content;
+  $('#post-modal').dataset.board = boardKey;
+  $('#post-modal').dataset.postid = item.id;
+  // load comments
+  loadComments(boardKey, item.id);
+}
+function loadComments(board,postid){
+  const container = $('#modal-comments');
+  container.innerHTML='加载中...';
+  db.ref('forum/'+board+'/'+postid+'/comments').on('value', snap=>{
+    const data = snap.val() || {};
+    container.innerHTML='';
+    const arr = Object.entries(data).map(([id,v])=>({id,...v})).sort((a,b)=>a.timestamp-b.timestamp);
+    if(arr.length===0) container.innerHTML='<div style="color:#999">暂无评论</div>';
+    arr.forEach(c=>{
+      const u = window.users[c.author]||{nickname:c.author,avatar:''};
+      const div = document.createElement('div'); div.style.padding='8px 0'; div.style.borderBottom='1px solid #f5f5f5';
+      div.innerHTML = `<div style="display:flex;gap:8px"><div class="avatar"><img src="${u.avatar||'https://via.placeholder.com/48'}"></div><div style="flex:1"><div style="font-weight:600">${escapeHtml(u.nickname||c.author)} <span style="color:#777;font-weight:400;font-size:12px"> · ${new Date(c.timestamp).toLocaleString()}</span></div><div style="margin-top:6px">${escapeHtml(c.content)}</div></div></div>`;
+      // actions
+      const isAuthor = currentUser && currentUser.uid===c.author;
+      const isAdmin = currentUser && (window.users && window.users[currentUser.uid] && window.users[currentUser.uid].role==='admin');
+      if(isAuthor||isAdmin){
+        const bar = document.createElement('div'); bar.style.marginTop='6px'; bar.style.display='flex'; bar.style.gap='6px';
+        const del = createBtn('删除', ()=> { if(confirm('删除该评论？')) db.ref('forum/'+board+'/'+postid+'/comments/'+c.id).remove(); });
+        bar.appendChild(del);
+        if(isAuthor){
+          const edit = createBtn('编辑', ()=> {
+            const s = prompt('编辑评论', c.content); if(s==null) return; db.ref('forum/'+board+'/'+postid+'/comments/'+c.id).update({ content: s });
+          });
+          bar.appendChild(edit);
+        }
+        div.appendChild(bar);
+      }
+      container.appendChild(div);
+    });
+  });
+}
+
+async function submitComment(){
+  if(!currentUser){ alert('请先登录'); return; }
+  const board = $('#post-modal').dataset.board;
+  const postid = $('#post-modal').dataset.postid;
+  const content = $('#comment-input').value.trim();
+  if(!content) { alert('请输入评论'); return; }
+  const ref = db.ref('forum/'+board+'/'+postid+'/comments').push();
+  await ref.set({ author: currentUser.uid, content, timestamp: Date.now() });
+  $('#comment-input').value='';
+}
+
+/* edit post (simple prompt-based) */
+function editPost(board,item){
+  const t = prompt('编辑标题', item.title); if(t==null) return;
+  const c = prompt('编辑内容', item.content); if(c==null) return;
+  db.ref('forum/'+board+'/'+item.id).update({ title:t, content:c });
+}
+
+/* tiny selector */
+function $(s){ return document.querySelector(s); }
+</script>
+</body>
+</html>
