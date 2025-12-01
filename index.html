@@ -1,552 +1,423 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>怪人协会 - 成员管理系统（Auth 已集成）</title>
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" href="https://via.placeholder.com/32" type="image/x-icon">
-    <style>
-        /* （保持你原来的样式） */
-        * {margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
-        body{background:#f9f9f9;color:#333;line-height:1.6;}
-        .container{width:1200px;max-width:100%;margin:0 auto;padding:0 20px;}
-        header{background:#fff;border-bottom:1px solid #e0e0e0;padding:16px 0;position:sticky;top:0;z-index:999;}
-        .nav{display:flex;justify-content:space-between;align-items:center;}
-        .logo{font-size:24px;font-weight:700;color:#000;text-decoration:none;}
-        .nav-menu{display:flex;gap:24px;}
-        .nav-link{color:#333;text-decoration:none;font-size:16px;transition:color 0.3s;}
-        .nav-link:hover,.nav-link.active{color:#000;font-weight:500;}
-        .user-info{display:flex;align-items:center;gap:12px;}
-        .btn{padding:8px 16px;border:1px solid #000;background:#fff;color:#000;cursor:pointer;transition:all 0.3s;border-radius:4px;font-size:14px;}
-        .btn:hover{background:#000;color:#fff;}
-        .btn-primary{background:#000;color:#fff;}
-        .btn-primary:hover{background:#333;}
-        main{padding:40px 0;}
-        .page-section{background:#fff;border-radius:8px;padding:32px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
-        .page-section+.page-section{margin-top:32px;}
-        .page-title{font-size:28px;margin-bottom:24px;font-weight:700;border-bottom:1px solid #e0e0e0;padding-bottom:16px;}
-        .title-line{height:4px;width:80px;background:#000;margin-bottom:32px;}
-        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;z-index:9999;}
-        .modal-content{background:#fff;padding:32px;width:400px;max-width:90%;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
-        .modal-title{font-size:24px;margin-bottom:24px;text-align:center;font-weight:700;}
-        .form-group{margin-bottom:20px;}
-        .form-label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}
-        .form-input{width:100%;padding:12px;border:1px solid #e0e0e0;border-radius:4px;font-size:16px;transition:border 0.3s;}
-        .form-input:focus{outline:none;border-color:#000;}
-        .form-textarea{width:100%;padding:12px;border:1px solid #e0e0e0;border-radius:4px;font-size:16px;resize:vertical;min-height:100px;}
-        .modal-btns{display:flex;gap:12px;margin-top:24px;}
-        .modal-btns .btn{flex:1;}
-        .dept-filter{margin-bottom:24px;display:flex;flex-wrap:wrap;gap:12px;}
-        .member-cards-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;}
-        @media(max-width:768px){.nav-menu{display:none}.member-cards-container{grid-template-columns:1fr!important}}
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>怪人协会 - 成员管理系统</title>
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="icon" href="https://via.placeholder.com/32" type="image/x-icon">
+<style>
+/* 样式保持黑白简洁风格 */
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial, sans-serif}
+body{background:#f9f9f9;color:#222;line-height:1.6}
+.container{width:1200px;max-width:100%;margin:0 auto;padding:0 20px}
+header{background:#fff;border-bottom:1px solid #e6e6e6;padding:14px 0;position:sticky;top:0;z-index:99}
+.nav{display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:700;font-size:22px;text-decoration:none;color:#000}
+.nav-menu{display:flex;gap:18px}
+.nav-link{color:#333;text-decoration:none}
+.user-info{display:flex;align-items:center;gap:12px}
+.btn{padding:8px 14px;border-radius:6px;border:1px solid #000;background:#fff;cursor:pointer}
+.btn-primary{background:#000;color:#fff;border-color:#000}
+.page-section{background:#fff;border-radius:8px;padding:28px;margin-top:20px;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
+.page-title{font-size:24px;margin-bottom:12px;font-weight:700}
+.dept-filter{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.dept-filter button{padding:6px 12px;border:1px solid #000;background:#fff;border-radius:6px;cursor:pointer}
+.member-cards-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.member-card{border:1px solid #e6e6e6;border-radius:8px;padding:16px;position:relative;background:#fff}
+.avatar-small{width:48px;height:48px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.avatar-small img{width:100%;height:100%;object-fit:cover}
+.modal{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:999}
+.modal .modal-content{background:#fff;padding:24px;border-radius:8px;width:420px;max-width:94%}
+.form-group{margin-bottom:12px}
+.form-input{width:100%;padding:10px;border:1px solid #e6e6e6;border-radius:6px}
+.punishment-modal .modal-content{max-width:520px}
+@media(max-width:768px){.nav-menu{display:none}.container{padding:0 12px}}
+</style>
 </head>
 <body>
-    <header>
-        <div class="container nav">
-            <a href="#" class="logo">怪人协会</a>
-            <div class="nav-menu">
-                <a href="#" class="nav-link">首页</a>
-                <a href="#member-page" class="nav-link active">成员查询</a>
-                <a href="#" class="nav-link">论坛交流</a>
-                <a href="#" class="nav-link">绘画大赛</a>
-                <a href="#" class="nav-link">SXP收容所</a>
-            </div>
-            <div class="user-info">
-                <span class="username-display">未登录</span>
-                <button id="login-btn" class="btn">登录</button>
-                <button id="register-btn" class="btn btn-primary">注册</button>
-                <button id="logout-btn" class="btn" style="display:none">退出登录</button>
-            </div>
-        </div>
-    </header>
+<header>
+  <div class="container nav">
+    <a class="logo" href="#">怪人协会</a>
+    <nav class="nav-menu">
+      <a class="nav-link" href="index.html">首页</a>
+      <a class="nav-link active" href="index.html#member-page">成员查询</a>
+      <a class="nav-link" href="forum.html">论坛交流</a>
+    </nav>
+    <div class="user-info">
+      <div id="nav-profile" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <div class="avatar-small" id="nav-avatar"><img src="https://via.placeholder.com/48" alt="avatar"></div>
+        <div id="nav-username">未登录</div>
+      </div>
+      <button id="login-btn" class="btn">登录</button>
+      <button id="register-btn" class="btn btn-primary">注册</button>
+      <button id="logout-btn" class="btn" style="display:none">退出</button>
+    </div>
+  </div>
+</header>
 
-    <main class="container">
-        <section id="member-page" class="page-section">
-            <h2 class="page-title">怪人协会 - 部门成员总览</h2>
-            <div class="title-line"></div>
-
-            <div class="dept-filter">
-                <button class="dept-filter-btn active" data-dept="all" style="padding:6px 16px;border:1px solid #000;background:#fff;cursor:pointer;">全部部门</button>
-                <button class="dept-filter-btn" data-dept="defense" style="padding:6px 16px;border:1px solid #000;background:#fff;cursor:pointer;">会防部</button>
-                <button class="dept-filter-btn" data-dept="clearing" style="padding:6px 16px;border:1px solid #000;background:#fff;cursor:pointer;">清算部</button>
-                <button class="dept-filter-btn" data-dept="coordination" style="padding:6px 16px;border:1px solid #000;background:#fff;cursor:pointer;">统筹部</button>
-                <button class="dept-filter-btn" data-dept="economic" style="padding:6px 16px;border:1px solid #000;background:#fff;cursor:pointer;">经济部</button>
-                <button class="dept-filter-btn" data-dept="info-sec" style="padding:6px 16px;border:1px solid #000;background:#fff;cursor:pointer;">信息安全部</button>
-            </div>
-
-            <div class="member-cards-container">
-                <!-- 由 JS 渲染成员卡片（保持你提供的逻辑） -->
-            </div>
-
-            <div class="punishment-modal modal">
-                <div class="modal-content">
-                    <h3 class="modal-title">添加处分记录</h3>
-                    <input type="hidden" id="target-member-id">
-                    <div class="form-group">
-                        <label class="form-label">处分类型</label>
-                        <select id="punishment-type" class="form-input">
-                            <option value="current">当前处分</option>
-                            <option value="history">既往处分</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">处分内容</label>
-                        <textarea id="punishment-content" class="form-textarea" placeholder="请输入处分内容..."></textarea>
-                    </div>
-                    <div class="modal-btns">
-                        <button id="cancel-punishment" class="btn">取消</button>
-                        <button id="confirm-punishment" class="btn btn-primary">确认添加</button>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-    </main>
-
-    <!-- 登录弹窗：改为邮箱登录（与 Firebase Auth 对接） -->
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <h3 class="modal-title">用户登录</h3>
-            <div class="form-group">
-                <label class="form-label">邮箱</label>
-                <input id="login-email" class="form-input" type="email" placeholder="请输入邮箱">
-            </div>
-            <div class="form-group">
-                <label class="form-label">密码</label>
-                <input id="login-password" class="form-input" type="password" placeholder="请输入密码">
-            </div>
-            <div class="modal-btns">
-                <button id="cancel-login" class="btn">取消</button>
-                <button id="submit-login" class="btn btn-primary">登录</button>
-            </div>
-        </div>
+<main class="container">
+  <section id="member-page" class="page-section">
+    <h2 class="page-title">怪人协会 - 部门成员总览</h2>
+    <div class="dept-filter">
+      <button class="dept-filter-btn active" data-dept="all">全部部门</button>
+      <button class="dept-filter-btn" data-dept="defense">会防部</button>
+      <button class="dept-filter-btn" data-dept="clearing">清算部</button>
+      <button class="dept-filter-btn" data-dept="coordination">统筹部</button>
+      <button class="dept-filter-btn" data-dept="economic">经济部</button>
+      <button class="dept-filter-btn" data-dept="info-sec">信息安全部</button>
     </div>
 
-    <!-- 注册弹窗（邮箱 + 昵称必填 + 密码） -->
-    <div id="register-modal" class="modal">
-        <div class="modal-content">
-            <h3 class="modal-title">用户注册</h3>
-            <div class="form-group">
-                <label class="form-label">邮箱（用于登录）</label>
-                <input id="register-email" class="form-input" type="email" placeholder="请输入邮箱">
-            </div>
-            <div class="form-group">
-                <label class="form-label">用户名（显示名称，必填）</label>
-                <input id="register-username" class="form-input" type="text" placeholder="请输入显示名称">
-            </div>
-            <div class="form-group">
-                <label class="form-label">密码</label>
-                <input id="register-password" class="form-input" type="password" placeholder="请输入密码（至少6位）">
-            </div>
-            <div class="modal-btns">
-                <button id="cancel-register" class="btn">取消</button>
-                <button id="submit-register" class="btn btn-primary">注册</button>
-            </div>
+    <div class="member-cards-container"></div>
+
+    <!-- 处罚弹窗 -->
+    <div class="modal punishment-modal" id="punishment-modal">
+      <div class="modal-content">
+        <h3 style="margin-bottom:12px">添加处分记录</h3>
+        <input type="hidden" id="target-member-id">
+        <div class="form-group"><label>处分类型</label>
+          <select id="punishment-type" class="form-input"><option value="current">当前处分</option><option value="history">既往处分</option></select>
         </div>
+        <div class="form-group"><label>处分内容</label>
+          <textarea id="punishment-content" class="form-input" rows="4"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button id="cancel-punishment" class="btn">取消</button>
+          <button id="confirm-punishment" class="btn btn-primary">确认</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Firebase SDK (compat 版本，避免模块语法) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  </section>
+</main>
 
-    <script>
-    /******************************************************************
-      说明：
-      - 管理员邮箱（你已指定）：Jb14514@163.com
-      - 注册时必须填写用户名（显示名称）
-      - 我**保留并原样使用**你提供的成员查询渲染逻辑（下方包含你原始代码）。
-      - 为保证旧逻辑中使用的 currentUser.username 能正常判断管理员，
-        当注册邮箱等于 ADMIN_EMAIL 时，我会把 users/{uid}.username 写为 "admin"，
-        这样原来的 admin 判断（username === 'admin'）仍可工作。
-    *******************************************************************/
-    // 1) Firebase 配置 —— 请替换为你自己的项目配置（若当前已经是你的项目配置则无需改）
-    const firebaseConfig = {
-      apiKey: "AIzaSyAzIUyu2Oj0nGgkc6h3qnS6DQkkxsBxzu8",
-      authDomain: "guairenxiehui-e3d59.firebaseapp.com",
-      databaseURL: "https://guairenxiehui-e3d59-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "guairenxiehui-e3d59",
-      storageBucket: "guairenxiehui-e3d59.firebasestorage.app",
-      messagingSenderId: "570598758945",
-      appId: "1:570598758945:web:5321c2f2d7dd4a7d9fa160",
-      measurementId: "G-9VNTHKZBP0"
-    };
-    // 初始化
-    const firebase = window.firebase;
-    if (!firebase.apps?.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth();
-    const db = firebase.database();
-    const storage = firebase.storage();
+<!-- 登录模态 -->
+<div class="modal" id="login-modal">
+  <div class="modal-content">
+    <h3 style="text-align:center;margin-bottom:10px">用户登录</h3>
+    <div class="form-group"><label>邮箱</label><input id="login-email" class="form-input" type="email"></div>
+    <div class="form-group"><label>密码</label><input id="login-password" class="form-input" type="password"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button id="cancel-login" class="btn">取消</button>
+      <button id="submit-login" class="btn btn-primary">登录</button>
+    </div>
+  </div>
+</div>
 
-    // 管理员邮箱（你提供）
-    const ADMIN_EMAIL = 'Jb14514@163.com';
-    const ADMIN_USERNAME = 'admin'; // 保留原判定字符串
+<!-- 注册模态 -->
+<div class="modal" id="register-modal">
+  <div class="modal-content">
+    <h3 style="text-align:center;margin-bottom:10px">用户注册</h3>
+    <div class="form-group"><label>邮箱（用于登录）</label><input id="register-email" class="form-input" type="email"></div>
+    <div class="form-group"><label>用户名（显示名称，必填）</label><input id="register-username" class="form-input" type="text"></div>
+    <div class="form-group"><label>密码</label><input id="register-password" class="form-input" type="password"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button id="cancel-register" class="btn">取消</button>
+      <button id="submit-register" class="btn btn-primary">注册</button>
+    </div>
+  </div>
+</div>
 
-    // 全局（保留 members 变量用于你原实现）
-    let currentUser = null; // 将包含 { uid, email, username } 以兼容旧逻辑
-    let members = [];
+<!-- 资料编辑（头像上传） -->
+<div class="modal" id="profile-modal">
+  <div class="modal-content">
+    <h3 style="text-align:center;margin-bottom:10px">个人资料</h3>
+    <div class="form-group"><label>昵称</label><input id="profile-nickname" class="form-input"></div>
+    <div class="form-group">
+      <label>上传头像（小图，建议 200x200）</label>
+      <input id="profile-avatar-input" type="file" accept="image/*">
+      <div style="margin-top:8px"><div class="avatar-small" id="profile-avatar-preview"><img src="https://via.placeholder.com/48"></div></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button id="cancel-profile" class="btn">取消</button>
+      <button id="save-profile" class="btn btn-primary">保存</button>
+    </div>
+  </div>
+</div>
 
-    document.addEventListener('DOMContentLoaded', function() {
-        initAuthState();
-        initLoginRegisterModal();
-        initLogout();
-        initMembersData();
-        initPunishmentModal();
-        initMemberFilter();
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+/* ========== 配置：请替换为你自己的 firebaseConfig ========== */
+const firebaseConfig = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME",
+  databaseURL: "REPLACE_ME",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME"
+};
+/* ============================================================ */
+const firebaseApp = window.firebase;
+if (!firebaseApp.apps?.length) firebaseApp.initializeApp(firebaseConfig);
+const auth = firebaseApp.auth();
+const db = firebaseApp.database();
+
+const ADMIN_EMAIL = 'Jb14514@163.com';
+const ADMIN_USERNAME = 'admin';
+
+let currentUser = null; // { uid, email, username }
+let members = [];
+
+/* ---------- DOM helpers ---------- */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+/* ---------- 初始化 ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  bindUI();
+  initAuthState();
+  initMembersData();
+});
+
+/* ---------- UI binding ---------- */
+function bindUI() {
+  // Login/Register buttons
+  $('#login-btn').addEventListener('click', ()=> $('#login-modal').style.display='flex');
+  $('#register-btn').addEventListener('click', ()=> $('#register-modal').style.display='flex');
+  $('#cancel-login').addEventListener('click', ()=> $('#login-modal').style.display='none');
+  $('#cancel-register').addEventListener('click', ()=> $('#register-modal').style.display='none');
+
+  $('#submit-login').addEventListener('click', async ()=>{
+    const email = $('#login-email').value.trim();
+    const pwd = $('#login-password').value.trim();
+    if(!email||!pwd){ alert('请输入邮箱与密码'); return;}
+    try{
+      await auth.signInWithEmailAndPassword(email, pwd);
+      $('#login-modal').style.display='none';
+    }catch(e){ console.error(e); alert('登录失败：'+(e.message||e)); }
+  });
+
+  $('#submit-register').addEventListener('click', async ()=>{
+    const email = $('#register-email').value.trim();
+    const username = $('#register-username').value.trim();
+    const pwd = $('#register-password').value.trim();
+    if(!email||!username||!pwd){ alert('请完整填写'); return; }
+    if(pwd.length<6){ alert('密码至少6位'); return; }
+    try{
+      const cred = await auth.createUserWithEmailAndPassword(email, pwd);
+      const uid = cred.user.uid;
+      const isAdmin = email.toLowerCase()===ADMIN_EMAIL.toLowerCase();
+      const usernameToWrite = isAdmin? ADMIN_USERNAME : username;
+      const role = isAdmin? 'admin' : 'user';
+      await db.ref('users/'+uid).set({ username: usernameToWrite, nickname: username, avatar: '' , role});
+      if(isAdmin) await db.ref('admins/'+uid).set(true);
+      alert('注册成功，系统将自动登录');
+      $('#register-modal').style.display='none';
+    }catch(e){ console.error(e); alert('注册失败：'+(e.message||e)); }
+  });
+
+  $('#logout-btn').addEventListener('click', async ()=> {
+    await auth.signOut();
+  });
+
+  // profile
+  $('#nav-profile').addEventListener('click', ()=> {
+    if(!currentUser){ alert('请先登录'); return; }
+    const u = window.users && window.users[currentUser.uid] ? window.users[currentUser.uid] : {};
+    $('#profile-nickname').value = u.nickname || '';
+    $('#profile-avatar-preview img').src = u.avatar || 'https://via.placeholder.com/48';
+    $('#profile-modal').style.display='flex';
+  });
+  $('#cancel-profile').addEventListener('click', ()=> $('#profile-modal').style.display='none');
+  $('#save-profile').addEventListener('click', saveProfile);
+  $('#profile-avatar-input').addEventListener('change', e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ()=> $('#profile-avatar-preview img').src = r.result;
+    r.readAsDataURL(f);
+  });
+
+  // punishment modal cancel/confirm
+  $('#cancel-punishment').addEventListener('click', ()=> { $('#punishment-modal').style.display='none'; $('#punishment-content').value=''; });
+  $('#confirm-punishment').addEventListener('click', confirmPunishment);
+
+  // dept filter
+  $$('.dept-filter-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      $$('.dept-filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const dept = btn.getAttribute('data-dept');
+      renderMemberCards(dept);
     });
+  });
+}
 
-    // ---------- Auth 状态监听与用户资料同步 ----------
-    async function initAuthState() {
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                // 登录后，确保 users/{uid} 有一条记录，加载其 username/nickname/avatar/role
-                const uid = user.uid;
-                const email = user.email;
-                const snap = await db.ref('users/' + uid).get();
-                if (!snap.exists()) {
-                    // 默认 username 使用邮箱前缀，若为管理员邮箱则强制 username = 'admin' 且 role='admin'
-                    const localName = email.substring(0, email.indexOf('@')) || email;
-                    const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-                    const usernameToWrite = isAdminEmail ? ADMIN_USERNAME : localName;
-                    const role = isAdminEmail ? 'admin' : 'user';
-                    await db.ref('users/' + uid).set({ username: usernameToWrite, nickname: localName, avatar: '', role });
-                    if (isAdminEmail) {
-                        await db.ref('admins/' + uid).set(true);
-                    }
-                    window.users = window.users || {};
-                    window.users[uid] = { username: usernameToWrite, nickname: localName, avatar: '', role };
-                } else {
-                    window.users = window.users || {};
-                    window.users[uid] = snap.val();
-                }
-                // Set currentUser with username field to keep member logic compatibility
-                currentUser = {
-                    uid: uid,
-                    email: email,
-                    username: window.users[uid] && window.users[uid].username ? window.users[uid].username : email.split('@')[0]
-                };
-            } else {
-                currentUser = null;
-            }
-            // 同步 window.users（读取一次全部 users 可供前端展示）
-            const allUsersSnap = await db.ref('users').get();
-            window.users = allUsersSnap.exists() ? allUsersSnap.val() : {};
-            updateUserDisplay();
-            // 渲染成员（因为 currentUser 变化会影响管理员判断）
-            const activeDeptBtn = document.querySelector('.dept-filter-btn.active');
-            const activeDept = activeDeptBtn ? activeDeptBtn.getAttribute('data-dept') : 'all';
-            try { renderMemberCards(activeDept); } catch (e) { /* renderMemberCards 在你原逻辑中 */ }
-        });
+/* ---------- Auth state ---------- */
+async function initAuthState(){
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      const uid = user.uid;
+      const email = user.email;
+      // ensure users/{uid} exists
+      const snap = await db.ref('users/'+uid).get();
+      if(!snap.exists()){
+        const nick = email.split('@')[0];
+        const isAdmin = email.toLowerCase()===ADMIN_EMAIL.toLowerCase();
+        const usernameToWrite = isAdmin? ADMIN_USERNAME : nick;
+        const role = isAdmin? 'admin':'user';
+        await db.ref('users/'+uid).set({ username: usernameToWrite, nickname: nick, avatar: '', role });
+        if(isAdmin) await db.ref('admins/'+uid).set(true);
+        window.users = window.users || {};
+        window.users[uid] = { username: usernameToWrite, nickname: nick, avatar:'', role};
+      } else {
+        window.users = window.users || {};
+        window.users[uid] = snap.val();
+      }
+      currentUser = { uid, email, username: window.users[uid].username || email.split('@')[0] };
+    } else {
+      currentUser = null;
     }
+    // load all users to window.users for quick reference
+    const all = await db.ref('users').get();
+    window.users = all.exists()? all.val() : {};
+    updateUserUI();
+    renderMemberCards(document.querySelector('.dept-filter-btn.active').getAttribute('data-dept'));
+  });
+}
 
-    function updateUserDisplay() {
-        const usernameDisplay = document.querySelector('.username-display');
-        const loginBtn = document.getElementById('login-btn');
-        const registerBtn = document.getElementById('register-btn');
-        const logoutBtn = document.getElementById('logout-btn');
+/* ---------- Profile save (avatar -> base64 string) ---------- */
+async function saveProfile(){
+  if(!currentUser){ alert('请先登录'); return; }
+  const nickname = $('#profile-nickname').value.trim() || '';
+  const avatarSrc = $('#profile-avatar-preview img').src || '';
+  try{
+    await db.ref('users/'+currentUser.uid).update({ nickname, avatar: avatarSrc });
+    // refresh window.users
+    const snap = await db.ref('users/'+currentUser.uid).get();
+    window.users[currentUser.uid] = snap.val();
+    $('#profile-modal').style.display='none';
+    alert('资料保存成功');
+    updateUserUI();
+  }catch(e){ console.error(e); alert('保存失败：'+(e.message||e)); }
+}
 
-        if (currentUser) {
-            const u = window.users && window.users[currentUser.uid] ? window.users[currentUser.uid] : {};
-            usernameDisplay.textContent = '欢迎，' + (u.nickname || currentUser.email || currentUser.username);
-            loginBtn.style.display = 'none';
-            registerBtn.style.display = 'none';
-            logoutBtn.style.display = 'inline-block';
-        } else {
-            usernameDisplay.textContent = '未登录';
-            loginBtn.style.display = 'inline-block';
-            registerBtn.style.display = 'inline-block';
-            logoutBtn.style.display = 'none';
-        }
+/* ---------- Update user area ---------- */
+function updateUserUI(){
+  if(currentUser){
+    const u = window.users && window.users[currentUser.uid] ? window.users[currentUser.uid] : {};
+    $('#nav-username').textContent = '欢迎，' + (u.nickname || currentUser.email.split('@')[0]);
+    $('#nav-avatar img').src = u.avatar || 'https://via.placeholder.com/48';
+    $('#login-btn').style.display='none';
+    $('#register-btn').style.display='none';
+    $('#logout-btn').style.display='inline-block';
+  } else {
+    $('#nav-username').textContent = '未登录';
+    $('#nav-avatar img').src = 'https://via.placeholder.com/48';
+    $('#login-btn').style.display='inline-block';
+    $('#register-btn').style.display='inline-block';
+    $('#logout-btn').style.display='none';
+  }
+}
+
+/* ---------- Members data (keep your original default data and structure) ---------- */
+function initMembersData(){
+  const membersRef = db.ref('members');
+  membersRef.once('value').then(snapshot=>{
+    const data = snapshot.val();
+    if(!data){
+      const defaultMembers = [
+        { id:'1', name:'王沛霖', dept:'defense', deptName:'会防部', role:'部长', gender:'男', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'2', name:'王楚恩', dept:'defense', deptName:'会防部', role:'成员', gender:'女', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'3', name:'靳海逸', dept:'defense', deptName:'会防部', role:'成员', gender:'男', currentPunishment:'无', historyPunishment:['无'], crossDept:'清算部' },
+        { id:'4', name:'李瑾睿', dept:'clearing', deptName:'清算部', role:'部长', gender:'男', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'5', name:'赵雅晗', dept:'clearing', deptName:'清算部', role:'成员', gender:'女', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'6', name:'闫家栋', dept:'coordination', deptName:'统筹部', role:'部长', gender:'男', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'7', name:'肖亚旭', dept:'coordination', deptName:'统筹部', role:'成员', gender:'男', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'8', name:'宿容', dept:'coordination', deptName:'统筹部', role:'成员', gender:'女', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'9', name:'陈雨琪', dept:'coordination', deptName:'统筹部', role:'成员', gender:'女', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'10', name:'刘萱楠', dept:'coordination', deptName:'统筹部', role:'成员', gender:'女', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'11', name:'张起华', dept:'economic', deptName:'经济部', role:'部长', gender:'男', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'12', name:'张泽楷', dept:'economic', deptName:'经济部', role:'成员', gender:'男', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'13', name:'刘汪浩', dept:'info-sec', deptName:'信息安全部', role:'部长', gender:'男', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'14', name:'吴昊鹏', dept:'info-sec', deptName:'信息安全部', role:'成员', gender:'男', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'15', name:'夏浚宸', dept:'info-sec', deptName:'信息安全部', role:'成员', gender:'男', currentPunishment:'无', historyPunishment:['无'] },
+        { id:'16', name:'丁嘉禾', dept:'info-sec', deptName:'信息安全部', role:'成员', gender:'男', currentPunishment:'无', historyPunishment:['无'] }
+      ];
+      const obj = defaultMembers.reduce((o,m)=>{o[m.id]=m;return o;},{});
+      membersRef.set(obj).then(()=>{ members = defaultMembers; renderMemberCards('all'); }).catch(err=>{ console.error('set members failed',err); });
+    } else {
+      members = Object.values(data);
+      renderMemberCards('all');
     }
+  }).catch(e=>{ console.error(e); alert('读取成员失败：'+e.message); });
 
-    // ---------- 登录 / 注册（使用 Firebase Auth） ----------
-    function initLoginRegisterModal() {
-        // 登录
-        const loginModal = document.getElementById('login-modal');
-        const loginBtn = document.getElementById('login-btn');
-        const cancelLogin = document.getElementById('cancel-login');
-        const submitLogin = document.getElementById('submit-login');
+  // listen changes
+  db.ref('members').on('value', snap=>{
+    const data = snap.val();
+    if(data) members = Object.values(data);
+    renderMemberCards(document.querySelector('.dept-filter-btn.active').getAttribute('data-dept'));
+  });
+}
 
-        loginBtn.addEventListener('click', ()=> { loginModal.style.display = 'flex'; });
-        cancelLogin.addEventListener('click', ()=> { loginModal.style.display = 'none'; });
-        loginModal.addEventListener('click', (e)=> { if (e.target === loginModal) loginModal.style.display = 'none'; });
+/* ---------- Render members (kept your original logic, admin check uses currentUser.username which we set on login) ---------- */
+function renderMemberCards(dept){
+  const container = document.querySelector('.member-cards-container');
+  if(!container) return;
+  container.innerHTML='';
+  const filtered = dept==='all'? members : members.filter(m=>m.dept===dept);
+  if(filtered.length===0){ container.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#999">该部门暂无成员</div>'; return;}
+  const groups = {};
+  filtered.forEach(m=>{ if(!groups[m.deptName]) groups[m.deptName]=[]; groups[m.deptName].push(m); });
+  const isAdmin = currentUser && currentUser.username===ADMIN_USERNAME;
+  for(const g in groups){
+    const title = document.createElement('div'); title.style.gridColumn='1/-1'; title.style.fontWeight='700'; title.style.margin='8px 0'; title.textContent=g; container.appendChild(title);
+    groups[g].forEach(member=>{
+      const card = document.createElement('div'); card.className='member-card';
+      let cross = member.crossDept? ('<div style="position:absolute;top:10px;right:10px;padding:4px 8px;border:1px solid #ccc;border-radius:12px;font-size:12px;color:#666">跨部门：'+member.crossDept+'</div>') : '';
+      let addBtn = isAdmin ? '<button class="add-punishment-btn" data-member-id="'+member.id+'" style="width:100%;margin-top:12px;padding:8px;border:1px solid #000;background:#fff;cursor:pointer">添加处分</button>' : '';
+      card.innerHTML = cross
+        + '<div style="font-size:18px;font-weight:700;margin-bottom:6px">'+member.name+'</div>'
+        + '<div style="color:#666;margin-bottom:6px">'+member.deptName+' · '+member.role+'</div>'
+        + '<div style="color:#666;margin-bottom:12px">性别：'+member.gender+'</div>'
+        + '<div style="border-top:1px solid #eee;padding-top:10px">'
+          + '<div style="margin-bottom:8px"><strong>当前处分：</strong><span style="'+(member.currentPunishment!=='无'?'color:#d32f2f':'')+'">'+member.currentPunishment+'</span></div>'
+          + '<div><strong>既往处分：</strong><span>'+ (member.historyPunishment?member.historyPunishment.join('、'):'') +'</span></div>'
+        + '</div>'
+        + addBtn;
+      container.appendChild(card);
+    });
+  }
+  if(isAdmin) bindAddPunishmentBtn();
+}
 
-        // 登录提交（使用 Auth）
-        // 注意：页面里登录按钮 id=submit-login 已存在
-        submitLogin.addEventListener('click', async () => {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
-            if (!email || !password) { alert('请输入邮箱和密码'); return; }
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-                alert('登录成功');
-                loginModal.style.display = 'none';
-            } catch (err) {
-                console.error(err);
-                alert('登录失败：' + (err.message || err));
-            }
-        });
+/* ---------- Punishment handlers ---------- */
+function bindAddPunishmentBtn(){
+  document.querySelectorAll('.add-punishment-btn').forEach(btn=>{
+    btn.removeEventListener('click', handleAddPunishmentClick);
+    btn.addEventListener('click', handleAddPunishmentClick);
+  });
+}
+function handleAddPunishmentClick(){
+  const id = this.getAttribute('data-member-id');
+  $('#target-member-id').value = id;
+  $('#punishment-modal').style.display='flex';
+}
+function confirmPunishment(){
+  const memberId = $('#target-member-id').value;
+  const type = $('#punishment-type').value;
+  const content = $('#punishment-content').value.trim();
+  if(!content){ alert('请输入处分内容'); return; }
+  const idx = members.findIndex(m=>m.id===memberId);
+  if(idx===-1) return;
+  const updated = Object.assign({}, members[idx]);
+  if(type==='current') updated.currentPunishment = content;
+  else {
+    updated.historyPunishment = updated.historyPunishment || [];
+    if(!updated.historyPunishment.includes(content)) updated.historyPunishment.push(content);
+  }
+  // write back (only admins allowed by DB rules)
+  db.ref('members/'+memberId).set(updated).then(()=>{ $('#punishment-modal').style.display='none'; $('#punishment-content').value=''; }).catch(e=>{ console.error(e); alert('写入失败：'+(e.message||e)); });
+}
 
-        // 注册
-        const registerModal = document.getElementById('register-modal');
-        const registerBtn = document.getElementById('register-btn');
-        const cancelRegister = document.getElementById('cancel-register');
-        const submitRegister = document.getElementById('submit-register');
+/* ---------- utility ---------- */
+function $(s){ return document.querySelector(s); }
+function $$(s){ return Array.from(document.querySelectorAll(s)); }
 
-        registerBtn.addEventListener('click', ()=> { registerModal.style.display = 'flex'; });
-        cancelRegister.addEventListener('click', ()=> { registerModal.style.display = 'none'; });
-        registerModal.addEventListener('click', (e)=> { if (e.target === registerModal) registerModal.style.display = 'none'; });
-
-        submitRegister.addEventListener('click', async () => {
-            const email = document.getElementById('register-email').value.trim();
-            const usernameInput = document.getElementById('register-username').value.trim();
-            const password = document.getElementById('register-password').value.trim();
-            if (!email || !usernameInput || !password) { alert('请输入邮箱、用户名与密码'); return; }
-            if (password.length < 6) { alert('密码至少6位'); return; }
-            try {
-                const cred = await auth.createUserWithEmailAndPassword(email, password);
-                const uid = cred.user.uid;
-                const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-                // 如果是管理员邮箱，强制 username 为 'admin'
-                const usernameToWrite = isAdminEmail ? ADMIN_USERNAME : usernameInput;
-                const role = isAdminEmail ? 'admin' : 'user';
-                await db.ref('users/' + uid).set({ username: usernameToWrite, nickname: usernameInput, avatar: '', role: role });
-                if (isAdminEmail) await db.ref('admins/' + uid).set(true);
-                alert('注册成功，正在自动登录（如未自动登录请手动登录）');
-                registerModal.style.display = 'none';
-            } catch (err) {
-                console.error(err);
-                alert('注册失败：' + (err.message || err));
-            }
-        });
-    }
-
-    function initLogout() {
-        const logoutBtn = document.getElementById('logout-btn');
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await auth.signOut();
-                currentUser = null;
-                localStorage.removeItem('guairen_user');
-                updateUserDisplay();
-                const activeDept = document.querySelector('.dept-filter-btn.active')?.getAttribute('data-dept') || 'all';
-                try { renderMemberCards(activeDept); } catch (e) {}
-            } catch (err) {
-                console.error(err);
-            }
-        });
-    }
-
-    /******************************************************************
-      以下为你的“成员查询模块”逻辑（你发给我的那段代码）
-      我**没有改动核心实现**，仅确保全局 currentUser 里存在 username 字段，
-      因此原来的管理员判断（currentUser.username === ADMIN_USERNAME）可继续使用。
-    *******************************************************************/
-
-    // 6. 成员数据初始化（Firebase加载+默认数据，无重复写入）
-    function initMembersData() {
-        const membersRef = db.ref('members');
-        membersRef.once('value').then((snapshot) => {
-            const data = snapshot.val();
-            if (!data) {
-                const defaultMembers = [
-                    { id: '1', name: '王沛霖', dept: 'defense', deptName: '会防部', role: '部长', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '2', name: '王楚恩', dept: 'defense', deptName: '会防部', role: '成员', gender: '女', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '3', name: '靳海逸', dept: 'defense', deptName: '会防部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'], crossDept: '清算部' },
-                    { id: '4', name: '李瑾睿', dept: 'clearing', deptName: '清算部', role: '部长', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '5', name: '赵雅晗', dept: 'clearing', deptName: '清算部', role: '成员', gender: '女', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '6', name: '闫家栋', dept: 'coordination', deptName: '统筹部', role: '部长', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '7', name: '肖亚旭', dept: 'coordination', deptName: '统筹部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '8', name: '宿容', dept: 'coordination', deptName: '统筹部', role: '成员', gender: '女', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '9', name: '陈雨琪', dept: 'coordination', deptName: '统筹部', role: '成员', gender: '女', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '10', name: '刘萱楠', dept: 'coordination', deptName: '统筹部', role: '成员', gender: '女', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '11', name: '张起华', dept: 'economic', deptName: '经济部', role: '部长', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '12', name: '张泽楷', dept: 'economic', deptName: '经济部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '13', name: '刘汪浩', dept: 'info-sec', deptName: '信息安全部', role: '部长', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '14', name: '吴昊鹏', dept: 'info-sec', deptName: '信息安全部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '15', name: '夏浚宸', dept: 'info-sec', deptName: '信息安全部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'] },
-                    { id: '16', name: '丁嘉禾', dept: 'info-sec', deptName: '信息安全部', role: '成员', gender: '男', currentPunishment: '无', historyPunishment: ['无'] }
-                ];
-                const membersObj = defaultMembers.reduce((obj, member) => {
-                    obj[member.id] = member;
-                    return obj;
-                }, {});
-                membersRef.set(membersObj);
-                members = defaultMembers;
-            } else {
-                members = Object.values(data);
-            }
-            renderMemberCards('all');
-        });
-
-        membersRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) members = Object.values(data);
-            const activeDept = document.querySelector('.dept-filter-btn.active').getAttribute('data-dept');
-            renderMemberCards(activeDept);
-        });
-    }
-
-    // 7. 部门筛选逻辑（无语法错误）
-    function initMemberFilter() {
-        const filterBtns = document.querySelectorAll('.dept-filter-btn');
-        if (!filterBtns.length) return;
-
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const dept = btn.getAttribute('data-dept');
-                renderMemberCards(dept);
-            });
-        });
-    }
-
-    // 8. 渲染成员名片（核心逻辑无错误）
-    function renderMemberCards(dept) {
-        const container = document.querySelector('.member-cards-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        const filteredMembers = dept === 'all' ? members : members.filter(m => m.dept === dept);
-
-        if (filteredMembers.length === 0) {
-            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px 0; color: #999;">该部门暂无成员</div>';
-            return;
-        }
-
-        const deptGroups = {};
-        filteredMembers.forEach(member => {
-            if (!deptGroups[member.deptName]) deptGroups[member.deptName] = [];
-            deptGroups[member.deptName].push(member);
-        });
-
-        // isAdmin 仍使用原来以 username 判断逻辑（我们在登录后会把 currentUser.username 设为 'admin' 以兼容）
-        const isAdmin = currentUser && currentUser.username === ADMIN_USERNAME;
-
-        for (const deptName in deptGroups) {
-            const deptTitle = document.createElement('div');
-            deptTitle.style.gridColumn = '1/-1';
-            deptTitle.style.fontSize = '18px';
-            deptTitle.style.fontWeight = '700';
-            deptTitle.style.marginTop = '24px';
-            deptTitle.style.marginBottom = '12px';
-            deptTitle.textContent = deptName;
-            container.appendChild(deptTitle);
-
-            deptGroups[deptName].forEach(member => {
-                const card = document.createElement('div');
-                card.className = 'member-card';
-                card.style.border = '1px solid #E0E0E0';
-                card.style.borderRadius = '4px';
-                card.style.padding = '20px';
-                card.style.transition = 'background 0.3s';
-                card.style.position = 'relative';
-
-                card.addEventListener('mouseenter', () => card.style.background = '#F9F9F9');
-                card.addEventListener('mouseleave', () => card.style.background = '#fff');
-
-                const crossDeptTag = member.crossDept ?
-                    '<div style="position: absolute; top: 12px; right: 12px; padding: 2px 8px; border: 1px solid #ccc; font-size: 12px; color: #666; border-radius: 12px;">跨部门：' + member.crossDept + '</div>' : '';
-
-                const addPunishmentBtn = isAdmin ?
-                    '<button class="add-punishment-btn" data-member-id="' + member.id + '" style="width: 100%; margin-top: 16px; padding: 8px 0; border: 1px solid #000; background: #fff; cursor: pointer; transition: background 0.3s;">添加处分</button>' : '';
-
-                card.innerHTML = ''
-                    + crossDeptTag
-                    + '<div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">' + member.name + '</div>'
-                    + '<div style="color: #666; margin-bottom: 4px;">' + member.deptName + ' · ' + member.role + '</div>'
-                    + '<div style="color: #666; margin-bottom: 16px;">性别：' + member.gender + '</div>'
-                    + '<div style="border-top: 1px solid #E0E0E0; padding-top: 16px;">'
-                        + '<div style="margin-bottom: 8px;">'
-                            + '<span style="font-weight: 500;">当前处分：</span>'
-                            + '<span style="' + (member.currentPunishment !== '无' ? 'color: #d32f2f;' : '') + '">' + member.currentPunishment + '</span>'
-                        + '</div>'
-                        + '<div>'
-                            + '<span style="font-weight: 500;">既往处分：</span>'
-                            + '<span>' + member.historyPunishment.join('、') + '</span>'
-                        + '</div>'
-                    + '</div>'
-                    + addPunishmentBtn;
-
-                container.appendChild(card);
-            });
-        }
-
-        if (isAdmin) bindAddPunishmentBtn();
-    }
-
-    // 9. 处分弹窗逻辑（无语法错误）
-    function initPunishmentModal() {
-        const modal = document.querySelector('.punishment-modal');
-        const cancelBtn = document.getElementById('cancel-punishment');
-        const confirmBtn = document.getElementById('confirm-punishment');
-        const contentInput = document.getElementById('punishment-content');
-        const targetIdInput = document.getElementById('target-member-id');
-
-        if (!modal || !cancelBtn || !confirmBtn || !contentInput || !targetIdInput) return;
-
-        cancelBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-            contentInput.value = '';
-        });
-
-        confirmBtn.addEventListener('click', () => {
-            const memberId = targetIdInput.value;
-            const type = document.getElementById('punishment-type').value || 'current';
-            const content = contentInput.value.trim();
-
-            if (!content) {
-                alert('请输入处分内容');
-                return;
-            }
-
-            const memberIndex = members.findIndex(m => m.id === memberId);
-            if (memberIndex === -1) return;
-
-            const updatedMember = { ...members[memberIndex] };
-            if (type === 'current') {
-                updatedMember.currentPunishment = content;
-            } else {
-                if (!updatedMember.historyPunishment.includes(content)) {
-                    updatedMember.historyPunishment.push(content);
-                }
-            }
-
-            db.ref('members/' + memberId).set(updatedMember);
-            modal.style.display = 'none';
-            contentInput.value = '';
-        });
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-                contentInput.value = '';
-            }
-        });
-    }
-
-    // 10. 绑定添加处分按钮事件（无重复绑定）
-    function bindAddPunishmentBtn() {
-        const btns = document.querySelectorAll('.add-punishment-btn');
-        btns.forEach(btn => {
-            btn.removeEventListener('click', handleAddPunishmentClick);
-            btn.addEventListener('click', handleAddPunishmentClick);
-        });
-    }
-
-    // 处分按钮点击处理（逻辑正常）
-    function handleAddPunishmentClick() {
-        const memberId = this.getAttribute('data-member-id');
-        document.getElementById('target-member-id').value = memberId;
-        document.querySelector('.punishment-modal').style.display = 'flex';
-    }
-
-    </script>
+</script>
 </body>
 </html>
