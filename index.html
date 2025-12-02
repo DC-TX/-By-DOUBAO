@@ -92,6 +92,7 @@
     <script>
         // --- CONFIG ---
         // Set the admin email here (M1). Change to your real admin address before going live.
+        // 🔐 管理员邮箱（M1：此邮箱将被识别为管理员）
         const ADMIN_EMAIL = 'Jb14514@163.com';
 
         const firebaseConfig = {
@@ -140,7 +141,11 @@
             const registerBtn = document.getElementById('register-btn');
             const logoutBtn = document.getElementById('logout-btn');
             if(currentUser){
-                usernameDisplay.textContent = `${currentUser.displayName}${currentUser.isAdmin ? '（管理员）' : ''}`;
+                if (currentUser.isAdmin) {
+                usernameDisplay.textContent = `🔱 管理员 · ${currentUser.displayName}`;
+            } else {
+                usernameDisplay.textContent = currentUser.displayName;
+            }
                 loginBtn.style.display = 'none';
                 registerBtn.style.display = 'none';
                 logoutBtn.style.display = 'inline-block';
